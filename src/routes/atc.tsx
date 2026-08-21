@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatHm, type FlightPlan } from "@/lib/flights";
 import { isValidSquawk, QUICK_SQUAWKS } from "@/lib/squawk";
+import { fplFromPlan } from "@/lib/fpl";
+
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
