@@ -142,6 +142,14 @@ function PlanCard({
         ))}
       </dl>
 
+      <div className="mt-3">
+        <p className="font-display text-[11px] tracking-console text-muted-foreground">ICAO FPL</p>
+        <pre className="mt-1 overflow-x-auto rounded-md border border-border bg-secondary/40 p-2 font-mono text-[11px] leading-relaxed text-foreground">
+          {icaoFpl}
+        </pre>
+      </div>
+
+
       {canReview && (
         <div className="mt-3 space-y-2 border-t border-border pt-3">
           <div className="flex items-center gap-2">
