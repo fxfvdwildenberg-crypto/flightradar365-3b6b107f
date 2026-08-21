@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      acars_messages: {
+        Row: {
+          body: string
+          created_at: string
+          flight_plan_id: string
+          id: string
+          label: string
+          sender_id: string | null
+          sender_name: string
+          sender_role: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          flight_plan_id: string
+          id?: string
+          label?: string
+          sender_id?: string | null
+          sender_name?: string
+          sender_role?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          flight_plan_id?: string
+          id?: string
+          label?: string
+          sender_id?: string | null
+          sender_name?: string
+          sender_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acars_messages_flight_plan_id_fkey"
+            columns: ["flight_plan_id"]
+            isOneToOne: false
+            referencedRelation: "flight_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aircraft_images: {
         Row: {
           aircraft: string
