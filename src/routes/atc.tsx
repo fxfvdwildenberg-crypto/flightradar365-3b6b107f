@@ -5,9 +5,12 @@ import { toast } from "sonner";
 import { ChevronLeft, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { formatHm, type FlightPlan } from "@/lib/flights";
+import { formatHm, navMode, planWaypoints, routeText, type FlightPlan, type NavMode } from "@/lib/flights";
 import { isValidSquawk, QUICK_SQUAWKS } from "@/lib/squawk";
 import { fplFromPlan } from "@/lib/fpl";
+import { useTfrs } from "@/lib/tfr";
+import { routeViolations } from "@/lib/route";
+import { RouteEditor } from "@/components/radar/RouteEditor";
 
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
