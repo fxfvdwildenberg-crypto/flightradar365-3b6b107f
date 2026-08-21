@@ -90,7 +90,7 @@ async function handle(request: Request): Promise<Response> {
     }
     created.push(ap.icao);
     try {
-      await postAtisMessage({ ...row, altimeter: null, notices: null, spoken_text: null, updated_at: new Date().toISOString() });
+      await postAtisMessage({ ...row, updated_at: new Date().toISOString() });
     } catch (e) {
       console.error("[atis-auto] discord relay failed", ap.icao, e);
     }
