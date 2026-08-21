@@ -172,6 +172,37 @@ function PlanCard({
 
       {canReview && (
         <div className="mt-3 space-y-2 border-t border-border pt-3">
+          <RouteEditor
+            navMode={draft.navMode}
+            waypoints={draft.waypoints}
+            depIcao={plan.dep_icao}
+            arrIcao={plan.arr_icao}
+            callsign={plan.callsign}
+            airline={plan.airline}
+            tfrs={tfrs}
+            onChange={setDraft}
+          />
+          <Button
+            variant="outline"
+            className="w-full"
+            disabled={!routeDirty || draftWarnings.length > 0}
+            onClick={() =>
+              onReview({
+                nav_mode: draft.navMode,
+                waypoints: draft.navMode === "waypoints" ? draft.waypoints : [],
+                ...(draft.navMode === "waypoints" && draft.waypoints.length
+                  ? { route: draft.waypoints.join(" ") }
+                  : {}),
+              })
+            }
+          >
+            Amend route
+          </Button>
+        </div>
+      )}
+
+      {canReview && (
+        <div className="mt-3 space-y-2 border-t border-border pt-3">
           <div className="flex items-center gap-2">
             <Input
               value={squawk}
