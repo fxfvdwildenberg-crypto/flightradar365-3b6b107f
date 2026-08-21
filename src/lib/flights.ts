@@ -19,11 +19,12 @@ export type FlightPlan = {
   squawk: string;
   atc_status: string;
   atc_note: string | null;
-  flight_rules?: string | null;
-  flight_type?: string | null;
+  flight_rules?: string;
+  flight_type?: string;
   aircraft_icao?: string | null;
   registration?: string | null;
   remarks?: string | null;
+
 };
 
 
