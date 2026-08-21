@@ -1,0 +1,680 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.15"
+  }
+  public: {
+    Tables: {
+      acars_messages: {
+        Row: {
+          body: string
+          created_at: string
+          flight_plan_id: string
+          id: string
+          label: string
+          sender_id: string | null
+          sender_name: string
+          sender_role: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          flight_plan_id: string
+          id?: string
+          label?: string
+          sender_id?: string | null
+          sender_name?: string
+          sender_role?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          flight_plan_id?: string
+          id?: string
+          label?: string
+          sender_id?: string | null
+          sender_name?: string
+          sender_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acars_messages_flight_plan_id_fkey"
+            columns: ["flight_plan_id"]
+            isOneToOne: false
+            referencedRelation: "flight_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aircraft_images: {
+        Row: {
+          aircraft: string
+          airline: string
+          created_at: string
+          image_url: string
+        }
+        Insert: {
+          aircraft: string
+          airline?: string
+          created_at?: string
+          image_url: string
+        }
+        Update: {
+          aircraft?: string
+          airline?: string
+          created_at?: string
+          image_url?: string
+        }
+        Relationships: []
+      }
+      airlines: {
+        Row: {
+          created_at: string
+          iata: string | null
+          icao: string | null
+          logo_url: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          iata?: string | null
+          icao?: string | null
+          logo_url?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          iata?: string | null
+          icao?: string | null
+          logo_url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      airports: {
+        Row: {
+          created_at: string
+          elevation: number
+          iata: string | null
+          icao: string
+          image_url: string | null
+          info: string | null
+          island: string
+          major: boolean
+          name: string
+          runway: number
+          updated_at: string
+          x: number
+          y: number
+        }
+        Insert: {
+          created_at?: string
+          elevation?: number
+          iata?: string | null
+          icao: string
+          image_url?: string | null
+          info?: string | null
+          island: string
+          major?: boolean
+          name: string
+          runway?: number
+          updated_at?: string
+          x: number
+          y: number
+        }
+        Update: {
+          created_at?: string
+          elevation?: number
+          iata?: string | null
+          icao?: string
+          image_url?: string | null
+          info?: string | null
+          island?: string
+          major?: boolean
+          name?: string
+          runway?: number
+          updated_at?: string
+          x?: number
+          y?: number
+        }
+        Relationships: []
+      }
+      atc_bans: {
+        Row: {
+          banned_by: string | null
+          created_at: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          banned_by?: string | null
+          created_at?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          banned_by?: string | null
+          created_at?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      atc_sessions: {
+        Row: {
+          airport_icao: string
+          discord_username: string | null
+          id: string
+          online: boolean
+          position: string
+          roblox_username: string | null
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          airport_icao: string
+          discord_username?: string | null
+          id?: string
+          online?: boolean
+          position: string
+          roblox_username?: string | null
+          started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          airport_icao?: string
+          discord_username?: string | null
+          id?: string
+          online?: boolean
+          position?: string
+          roblox_username?: string | null
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      atis: {
+        Row: {
+          active: boolean
+          airport_icao: string
+          altimeter: string | null
+          approaches: string | null
+          clouds: string | null
+          created_at: string
+          created_by: string | null
+          dew_point: string | null
+          id: string
+          letter: string
+          notices: string | null
+          qnh: string | null
+          remarks: string | null
+          runway_in_use: string | null
+          spoken_text: string | null
+          temperature: string | null
+          updated_at: string
+          visibility: string | null
+          wind: string | null
+        }
+        Insert: {
+          active?: boolean
+          airport_icao: string
+          altimeter?: string | null
+          approaches?: string | null
+          clouds?: string | null
+          created_at?: string
+          created_by?: string | null
+          dew_point?: string | null
+          id?: string
+          letter?: string
+          notices?: string | null
+          qnh?: string | null
+          remarks?: string | null
+          runway_in_use?: string | null
+          spoken_text?: string | null
+          temperature?: string | null
+          updated_at?: string
+          visibility?: string | null
+          wind?: string | null
+        }
+        Update: {
+          active?: boolean
+          airport_icao?: string
+          altimeter?: string | null
+          approaches?: string | null
+          clouds?: string | null
+          created_at?: string
+          created_by?: string | null
+          dew_point?: string | null
+          id?: string
+          letter?: string
+          notices?: string | null
+          qnh?: string | null
+          remarks?: string | null
+          runway_in_use?: string | null
+          spoken_text?: string | null
+          temperature?: string | null
+          updated_at?: string
+          visibility?: string | null
+          wind?: string | null
+        }
+        Relationships: []
+      }
+      flight_favorites: {
+        Row: {
+          created_at: string
+          flight_plan_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          flight_plan_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          flight_plan_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flight_favorites_flight_plan_id_fkey"
+            columns: ["flight_plan_id"]
+            isOneToOne: false
+            referencedRelation: "flight_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flight_plans: {
+        Row: {
+          aircraft: string
+          aircraft_icao: string | null
+          airline: string | null
+          alternate_icao: string | null
+          arr_icao: string
+          arr_time: string
+          atc_note: string | null
+          atc_status: string
+          callsign: string
+          created_at: string
+          cruise_alt: number
+          cruise_speed: number
+          dep_icao: string
+          dep_time: string
+          flight_rules: string
+          flight_type: string
+          id: string
+          registration: string | null
+          remarks: string | null
+          route: string | null
+          squawk: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          aircraft?: string
+          aircraft_icao?: string | null
+          airline?: string | null
+          alternate_icao?: string | null
+          arr_icao: string
+          arr_time: string
+          atc_note?: string | null
+          atc_status?: string
+          callsign: string
+          created_at?: string
+          cruise_alt?: number
+          cruise_speed?: number
+          dep_icao: string
+          dep_time: string
+          flight_rules?: string
+          flight_type?: string
+          id?: string
+          registration?: string | null
+          remarks?: string | null
+          route?: string | null
+          squawk?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          aircraft?: string
+          aircraft_icao?: string | null
+          airline?: string | null
+          alternate_icao?: string | null
+          arr_icao?: string
+          arr_time?: string
+          atc_note?: string | null
+          atc_status?: string
+          callsign?: string
+          created_at?: string
+          cruise_alt?: number
+          cruise_speed?: number
+          dep_icao?: string
+          dep_time?: string
+          flight_rules?: string
+          flight_type?: string
+          id?: string
+          registration?: string | null
+          remarks?: string | null
+          route?: string | null
+          squawk?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      flight_views: {
+        Row: {
+          flight_plan_id: string
+          seen_at: string
+          viewer_key: string
+        }
+        Insert: {
+          flight_plan_id: string
+          seen_at?: string
+          viewer_key: string
+        }
+        Update: {
+          flight_plan_id?: string
+          seen_at?: string
+          viewer_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flight_views_flight_plan_id_fkey"
+            columns: ["flight_plan_id"]
+            isOneToOne: false
+            referencedRelation: "flight_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          flight_plan_id: string | null
+          id: string
+          last_emergency: boolean
+          last_phase: string | null
+          p256dh: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          flight_plan_id?: string | null
+          id?: string
+          last_emergency?: boolean
+          last_phase?: string | null
+          p256dh: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          flight_plan_id?: string | null
+          id?: string
+          last_emergency?: boolean
+          last_phase?: string | null
+          p256dh?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_flight_plan_id_fkey"
+            columns: ["flight_plan_id"]
+            isOneToOne: false
+            referencedRelation: "flight_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tfrs: {
+        Row: {
+          allowed_callsigns: string[]
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          max_alt: number
+          min_alt: number
+          name: string
+          points: Json
+          reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          allowed_callsigns?: string[]
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          max_alt?: number
+          min_alt?: number
+          name: string
+          points: Json
+          reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allowed_callsigns?: string[]
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          max_alt?: number
+          min_alt?: number
+          name?: string
+          points?: Json
+          reason?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      auto_approve_flight_plans: { Args: never; Returns: number }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_atc_banned: { Args: { _user_id: string }; Returns: boolean }
+      random_squawk: { Args: never; Returns: string }
+    }
+    Enums: {
+      app_role: "admin" | "atc" | "pilot"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      app_role: ["admin", "atc", "pilot"],
+    },
+  },
+} as const

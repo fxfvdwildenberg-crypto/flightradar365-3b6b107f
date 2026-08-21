@@ -1,0 +1,25 @@
+{
+  "name": "ATC365 — Live Island Radar",
+  "short_name": "ATC365",
+  "description": "Live aircraft radar, flight plans and ATIS for the islands.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#22262e",
+  "theme_color": "#22262e",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/__l5e/assets-v1/9b946a30-657e-40de-b533-d3ec0c596da8/atc365-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
