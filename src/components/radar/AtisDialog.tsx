@@ -41,13 +41,23 @@ export function AtisDialog({
   const mutation = useMutation({
     mutationFn: async () => {
       await supabase.from("atis").update({ active: false }).eq("airport_icao", target).eq("active", true);
-      const { error } = await supabase.from("atis").insert({
-        airport_icao: target,
-        created_by: userId,
-        ...form,
-      });
+      const { data, error } = await supabase
+        .from("atis")
+        .insert({
+          airport_icao: target,
+          created_by: userId,
+          ...form,
+        })
+        .select("id")
+        .single();
       if (error) throw error;
+      try {
+        await announceAtis({ data: { atisId: data.id } });
+      } catch (e) {
+        console.error("[atis] discord relay failed", e);
+      }
     },
+
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["atis"] });
       toast.success(`ATIS ${form.letter} published for ${target}`);
