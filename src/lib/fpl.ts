@@ -215,3 +215,43 @@ export function buildFpl(input: FplInput): string {
   lines.push(other.length ? `-${other.join(" ")})` : ")");
   return lines.join("\n");
 }
+
+/** Row shape shared by the DB / controller views. */
+export type FplPlanRow = {
+  callsign: string;
+  aircraft: string;
+  aircraft_icao?: string | null;
+  registration?: string | null;
+  flight_rules?: string | null;
+  flight_type?: string | null;
+  dep_icao: string;
+  arr_icao: string;
+  alternate_icao?: string | null;
+  dep_time: string;
+  arr_time: string;
+  cruise_alt: number;
+  cruise_speed: number;
+  route?: string | null;
+  remarks?: string | null;
+};
+
+/** Builds the ICAO-style FPL message from a stored flight plan row. */
+export function fplFromPlan(plan: FplPlanRow): string {
+  return buildFpl({
+    callsign: plan.callsign,
+    flightRules: plan.flight_rules === "VFR" ? "VFR" : "IFR",
+    flightType: plan.flight_type ?? "S",
+    aircraft: plan.aircraft,
+    aircraftIcao: plan.aircraft_icao ?? "",
+    registration: plan.registration ?? "",
+    depIcao: plan.dep_icao,
+    arrIcao: plan.arr_icao,
+    depTime: plan.dep_time,
+    arrTime: plan.arr_time,
+    cruiseSpeed: plan.cruise_speed,
+    cruiseFl: Math.round(plan.cruise_alt / 100),
+    route: plan.route ?? "",
+    alternateIcao: plan.alternate_icao ?? "",
+    remarks: plan.remarks ?? "",
+  });
+}
