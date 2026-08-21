@@ -112,6 +112,66 @@ export function FlightPanel({
   const airline =
     airlines.find((a) => a.name.toLowerCase() === (flight.plan.airline ?? "").toLowerCase()) ?? null;
 
+  /* ---------------- routing (pilot + controller editable) ---------------- */
+  const qc = useQueryClient();
+  const { data: tfrs = [] } = useTfrs();
+  const [draft, setDraft] = useState<{ navMode: NavMode; waypoints: string[] }>({
+    navMode: navMode(flight.plan),
+    waypoints: planWaypoints(flight.plan),
+  });
+
+  useEffect(() => {
+    setDraft({ navMode: navMode(flight.plan), waypoints: planWaypoints(flight.plan) });
+  }, [flight.plan.id, flight.plan.nav_mode, flight.plan.waypoints?.join(" ")]);
+
+  const draftWarnings =
+    draft.navMode === "waypoints"
+      ? routeViolations(
+          flight.plan.dep_icao,
+          flight.plan.arr_icao,
+          draft.waypoints,
+          tfrs,
+          flight.plan.callsign,
+          flight.plan.airline,
+        )
+      : [];
+
+  const dirty =
+    draft.navMode !== navMode(flight.plan) ||
+    draft.waypoints.join(" ") !== planWaypoints(flight.plan).join(" ");
+
+  const saveRoute = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("flight_plans")
+        .update({
+          nav_mode: draft.navMode,
+          waypoints: draft.navMode === "waypoints" ? draft.waypoints : [],
+          route:
+            draft.navMode === "waypoints" && draft.waypoints.length
+              ? draft.waypoints.join(" ")
+              : flight.plan.route,
+        })
+        .eq("id", flight.plan.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["flight_plans"] });
+      toast.success("Route updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  /** Live airspace alerts for the aircraft's current position. */
+  const airspaceAlert =
+    flight.inside.length > 0
+      ? `Inside restricted airspace: ${flight.inside.join(", ")} — leave the area immediately.`
+      : flight.approaching.length > 0
+        ? `Approaching restricted airspace: ${flight.approaching.join(", ")} — do not enter, you are not cleared.`
+        : flight.violating.length > 0
+          ? `Filed waypoint route enters ${flight.violating.join(", ")} — amend the route.`
+          : null;
+
   return (
     <div className="deck-surface animate-deck-in absolute inset-x-0 bottom-0 z-30 max-h-[86dvh] overflow-hidden rounded-t-3xl">
       <div className="flex justify-center pt-2.5 pb-1">
