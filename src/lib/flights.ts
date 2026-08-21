@@ -19,7 +19,13 @@ export type FlightPlan = {
   squawk: string;
   atc_status: string;
   atc_note: string | null;
+  flight_rules?: string | null;
+  flight_type?: string | null;
+  aircraft_icao?: string | null;
+  registration?: string | null;
+  remarks?: string | null;
 };
+
 
 
 export type FlightPhase = "scheduled" | "departing" | "enroute" | "arriving" | "arrived";
