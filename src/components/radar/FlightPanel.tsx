@@ -368,9 +368,45 @@ export function FlightPanel({
                 rows={[
                   ["Airport", flight.dep.name],
                   ["Off blocks", formatHm(flight.plan.dep_time)],
-                  ["Route", flight.plan.route?.trim() || "DCT"],
+                  ["Route", routeText(flight.plan)],
                 ]}
               />
+            </Section>
+
+            <Section value="nav" icon={<RouteIcon className="size-4" />} title="Routing">
+              {airspaceAlert && (
+                <div className="mb-2 flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 px-2.5 py-2">
+                  <TriangleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+                  <p className="text-xs text-destructive">{airspaceAlert}</p>
+                </div>
+              )}
+              <Rows
+                rows={[
+                  ["Mode", navMode(flight.plan) === "waypoints" ? "Waypoints" : "Radar vectors"],
+                  ["Fixes", planWaypoints(flight.plan).join(" ") || "—"],
+                ]}
+              />
+              {canEditRoute && (
+                <div className="mt-3 space-y-2">
+                  <RouteEditor
+                    navMode={draft.navMode}
+                    waypoints={draft.waypoints}
+                    depIcao={flight.plan.dep_icao}
+                    arrIcao={flight.plan.arr_icao}
+                    callsign={flight.plan.callsign}
+                    airline={flight.plan.airline}
+                    tfrs={tfrs}
+                    onChange={setDraft}
+                  />
+                  <Button
+                    className="w-full"
+                    disabled={!dirty || draftWarnings.length > 0 || saveRoute.isPending}
+                    onClick={() => saveRoute.mutate()}
+                  >
+                    {saveRoute.isPending ? "Saving…" : "Save route"}
+                  </Button>
+                </div>
+              )}
             </Section>
 
             <Section
