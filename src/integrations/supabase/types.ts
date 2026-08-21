@@ -535,6 +535,7 @@ export type Database = {
     }
     Functions: {
       auto_approve_flight_plans: { Args: never; Returns: number }
+      delete_landed_flight_plans: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
