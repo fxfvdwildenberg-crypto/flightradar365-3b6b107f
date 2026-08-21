@@ -30,6 +30,7 @@ export function AtisDialog({
   const [form, setForm] = useState({
     letter: "A",
     runway_in_use: "",
+    approaches: "",
     wind: "",
     visibility: "",
     clouds: "",
