@@ -190,6 +190,29 @@ function RadarPage() {
   }, [plans, clock, focus, tfrs, Array.from(hiddenCats).sort().join(",")]);
 
 
+  // Airspace warnings for the signed-in pilot's own flights: one toast per
+  // aircraft per state change, so it nags on entry but not every tick.
+  const alerted = useRef(new Map<string, string>());
+  useEffect(() => {
+    if (!user) return;
+    for (const f of flights) {
+      if (f.plan.user_id !== user.id) return;
+      const state = f.inside.length
+        ? `inside:${f.inside.join(",")}`
+        : f.approaching.length
+          ? `near:${f.approaching.join(",")}`
+          : "clear";
+      if (alerted.current.get(f.plan.id) === state) continue;
+      alerted.current.set(f.plan.id, state);
+      if (f.inside.length)
+        toast.error(`${f.plan.callsign}: inside ${f.inside.join(", ")} — leave the restricted airspace now.`);
+      else if (f.approaching.length)
+        toast.warning(
+          `${f.plan.callsign}: approaching ${f.approaching.join(", ")} — do not enter, you are not cleared.`,
+        );
+    }
+  }, [flights, user]);
+
   const selectedFlight = flights.find((f) => f.plan.id === selectedFlightId) ?? null;
   const pinnedFlight = flights.find((f) => f.plan.id === pinnedId) ?? null;
 
