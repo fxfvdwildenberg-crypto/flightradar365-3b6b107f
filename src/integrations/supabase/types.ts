@@ -148,6 +148,27 @@ export type Database = {
         }
         Relationships: []
       }
+      atc_bans: {
+        Row: {
+          banned_by: string | null
+          created_at: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          banned_by?: string | null
+          created_at?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          banned_by?: string | null
+          created_at?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       atc_sessions: {
         Row: {
           airport_icao: string
@@ -279,6 +300,7 @@ export type Database = {
       flight_plans: {
         Row: {
           aircraft: string
+          aircraft_icao: string | null
           airline: string | null
           alternate_icao: string | null
           arr_icao: string
@@ -291,7 +313,11 @@ export type Database = {
           cruise_speed: number
           dep_icao: string
           dep_time: string
+          flight_rules: string
+          flight_type: string
           id: string
+          registration: string | null
+          remarks: string | null
           route: string | null
           squawk: string
           status: string
@@ -300,6 +326,7 @@ export type Database = {
         }
         Insert: {
           aircraft?: string
+          aircraft_icao?: string | null
           airline?: string | null
           alternate_icao?: string | null
           arr_icao: string
@@ -312,7 +339,11 @@ export type Database = {
           cruise_speed?: number
           dep_icao: string
           dep_time: string
+          flight_rules?: string
+          flight_type?: string
           id?: string
+          registration?: string | null
+          remarks?: string | null
           route?: string | null
           squawk?: string
           status?: string
@@ -321,6 +352,7 @@ export type Database = {
         }
         Update: {
           aircraft?: string
+          aircraft_icao?: string | null
           airline?: string | null
           alternate_icao?: string | null
           arr_icao?: string
@@ -333,7 +365,11 @@ export type Database = {
           cruise_speed?: number
           dep_icao?: string
           dep_time?: string
+          flight_rules?: string
+          flight_type?: string
           id?: string
+          registration?: string | null
+          remarks?: string | null
           route?: string | null
           squawk?: string
           status?: string
@@ -386,6 +422,95 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          flight_plan_id: string | null
+          id: string
+          last_emergency: boolean
+          last_phase: string | null
+          p256dh: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          flight_plan_id?: string | null
+          id?: string
+          last_emergency?: boolean
+          last_phase?: string | null
+          p256dh: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          flight_plan_id?: string | null
+          id?: string
+          last_emergency?: boolean
+          last_phase?: string | null
+          p256dh?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_flight_plan_id_fkey"
+            columns: ["flight_plan_id"]
+            isOneToOne: false
+            referencedRelation: "flight_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tfrs: {
+        Row: {
+          allowed_callsigns: string[]
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          max_alt: number
+          min_alt: number
+          name: string
+          points: Json
+          reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          allowed_callsigns?: string[]
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          max_alt?: number
+          min_alt?: number
+          name: string
+          points: Json
+          reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allowed_callsigns?: string[]
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          max_alt?: number
+          min_alt?: number
+          name?: string
+          points?: Json
+          reason?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -409,6 +534,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      auto_approve_flight_plans: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -416,6 +542,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_atc_banned: { Args: { _user_id: string }; Returns: boolean }
+      random_squawk: { Args: never; Returns: string }
     }
     Enums: {
       app_role: "admin" | "atc" | "pilot"
