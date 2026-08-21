@@ -196,7 +196,7 @@ function RadarPage() {
   useEffect(() => {
     if (!user) return;
     for (const f of flights) {
-      if (f.plan.user_id !== user.id) return;
+      if (f.plan.user_id !== user.id) continue;
       const state = f.inside.length
         ? `inside:${f.inside.join(",")}`
         : f.approaching.length
