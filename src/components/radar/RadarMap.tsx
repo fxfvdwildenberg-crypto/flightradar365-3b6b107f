@@ -11,7 +11,8 @@ import {
   type Airport,
   type Island,
 } from "@/lib/world";
-import type { LiveFlight } from "@/lib/flights";
+import { planWaypoints, type LiveFlight } from "@/lib/flights";
+import { resolveFixes } from "@/lib/route";
 import { ICON_PATHS } from "@/lib/aircraft";
 import { polygonCentroid, type Pt, type Tfr } from "@/lib/tfr";
 
@@ -409,6 +410,28 @@ export function RadarMap({
                 strokeWidth={labelScale * 2}
                 opacity={0.9}
               />
+              {/* Filed waypoints along the route */}
+              {resolveFixes(planWaypoints(f.plan)).map((w) => (
+                <g key={`fix-${f.plan.id}-${w.name}`}>
+                  <polygon
+                    points={`${w.x},${w.y - labelScale * 3} ${w.x + labelScale * 2.6},${w.y + labelScale * 2} ${w.x - labelScale * 2.6},${w.y + labelScale * 2}`}
+                    fill="none"
+                    stroke="var(--primary)"
+                    strokeWidth={labelScale * 0.9}
+                    opacity={0.9}
+                  />
+                  <text
+                    x={w.x + labelScale * 4}
+                    y={w.y + labelScale * 2}
+                    fontSize={labelScale * 7}
+                    fill="var(--primary)"
+                    opacity={0.85}
+                    className="font-mono"
+                  >
+                    {w.name}
+                  </text>
+                </g>
+              ))}
             </g>
           ))}
 

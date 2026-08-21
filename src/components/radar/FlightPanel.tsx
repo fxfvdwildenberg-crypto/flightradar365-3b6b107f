@@ -1,4 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   ChevronDown,
   Eye,
@@ -7,6 +9,7 @@ import {
   Pin,
   Plane,
   Radio,
+  Route as RouteIcon,
   TriangleAlert,
   X,
 } from "lucide-react";
@@ -14,9 +17,12 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { SIDE_VIEW } from "@/lib/aircraft";
 import { airlineBadge, useAirlines } from "@/lib/airlines";
-import { formatHm, phaseLabel, type LiveFlight } from "@/lib/flights";
+import { formatHm, navMode, phaseLabel, planWaypoints, routeText, type LiveFlight, type NavMode } from "@/lib/flights";
 import { isEmergencySquawk, squawkInfo } from "@/lib/squawk";
 import { fplFromPlan } from "@/lib/fpl";
+import { useTfrs } from "@/lib/tfr";
+import { routeViolations } from "@/lib/route";
+import { RouteEditor } from "@/components/radar/RouteEditor";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -56,6 +62,7 @@ export function FlightPanel({
   isPinned = false,
   onTogglePin,
   onOpenAcars,
+  canEditRoute = false,
   onClose,
 }: {
   flight: LiveFlight;
@@ -67,6 +74,8 @@ export function FlightPanel({
   isPinned?: boolean;
   onTogglePin?: (() => void) | undefined;
   onOpenAcars?: (() => void) | undefined;
+  /** The signed-in pilot owns this flight, or is a controller. */
+  canEditRoute?: boolean;
   onClose: () => void;
 }) {
   const squawk = flight.plan.squawk;
@@ -102,6 +111,66 @@ export function FlightPanel({
   const { data: airlines = [] } = useAirlines();
   const airline =
     airlines.find((a) => a.name.toLowerCase() === (flight.plan.airline ?? "").toLowerCase()) ?? null;
+
+  /* ---------------- routing (pilot + controller editable) ---------------- */
+  const qc = useQueryClient();
+  const { data: tfrs = [] } = useTfrs();
+  const [draft, setDraft] = useState<{ navMode: NavMode; waypoints: string[] }>({
+    navMode: navMode(flight.plan),
+    waypoints: planWaypoints(flight.plan),
+  });
+
+  useEffect(() => {
+    setDraft({ navMode: navMode(flight.plan), waypoints: planWaypoints(flight.plan) });
+  }, [flight.plan.id, flight.plan.nav_mode, flight.plan.waypoints?.join(" ")]);
+
+  const draftWarnings =
+    draft.navMode === "waypoints"
+      ? routeViolations(
+          flight.plan.dep_icao,
+          flight.plan.arr_icao,
+          draft.waypoints,
+          tfrs,
+          flight.plan.callsign,
+          flight.plan.airline,
+        )
+      : [];
+
+  const dirty =
+    draft.navMode !== navMode(flight.plan) ||
+    draft.waypoints.join(" ") !== planWaypoints(flight.plan).join(" ");
+
+  const saveRoute = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("flight_plans")
+        .update({
+          nav_mode: draft.navMode,
+          waypoints: draft.navMode === "waypoints" ? draft.waypoints : [],
+          route:
+            draft.navMode === "waypoints" && draft.waypoints.length
+              ? draft.waypoints.join(" ")
+              : flight.plan.route,
+        })
+        .eq("id", flight.plan.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["flight_plans"] });
+      toast.success("Route updated");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  /** Live airspace alerts for the aircraft's current position. */
+  const airspaceAlert =
+    flight.inside.length > 0
+      ? `Inside restricted airspace: ${flight.inside.join(", ")} — leave the area immediately.`
+      : flight.approaching.length > 0
+        ? `Approaching restricted airspace: ${flight.approaching.join(", ")} — do not enter, you are not cleared.`
+        : flight.violating.length > 0
+          ? `Filed waypoint route enters ${flight.violating.join(", ")} — amend the route.`
+          : null;
 
   return (
     <div className="deck-surface animate-deck-in absolute inset-x-0 bottom-0 z-30 max-h-[86dvh] overflow-hidden rounded-t-3xl">
@@ -299,9 +368,45 @@ export function FlightPanel({
                 rows={[
                   ["Airport", flight.dep.name],
                   ["Off blocks", formatHm(flight.plan.dep_time)],
-                  ["Route", flight.plan.route?.trim() || "DCT"],
+                  ["Route", routeText(flight.plan)],
                 ]}
               />
+            </Section>
+
+            <Section value="nav" icon={<RouteIcon className="size-4" />} title="Routing">
+              {airspaceAlert && (
+                <div className="mb-2 flex items-start gap-2 rounded-md border border-destructive/50 bg-destructive/10 px-2.5 py-2">
+                  <TriangleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+                  <p className="text-xs text-destructive">{airspaceAlert}</p>
+                </div>
+              )}
+              <Rows
+                rows={[
+                  ["Mode", navMode(flight.plan) === "waypoints" ? "Waypoints" : "Radar vectors"],
+                  ["Fixes", planWaypoints(flight.plan).join(" ") || "—"],
+                ]}
+              />
+              {canEditRoute && (
+                <div className="mt-3 space-y-2">
+                  <RouteEditor
+                    navMode={draft.navMode}
+                    waypoints={draft.waypoints}
+                    depIcao={flight.plan.dep_icao}
+                    arrIcao={flight.plan.arr_icao}
+                    callsign={flight.plan.callsign}
+                    airline={flight.plan.airline}
+                    tfrs={tfrs}
+                    onChange={setDraft}
+                  />
+                  <Button
+                    className="w-full"
+                    disabled={!dirty || draftWarnings.length > 0 || saveRoute.isPending}
+                    onClick={() => saveRoute.mutate()}
+                  >
+                    {saveRoute.isPending ? "Saving…" : "Save route"}
+                  </Button>
+                </div>
+              )}
             </Section>
 
             <Section

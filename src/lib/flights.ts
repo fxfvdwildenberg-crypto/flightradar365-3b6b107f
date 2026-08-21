@@ -1,5 +1,14 @@
 import { airportByIcao, type Airport } from "./world";
-import { pointAlong, routeAround, tfrBlocks, type Pt, type Tfr } from "./tfr";
+import {
+  pointAlong,
+  pointInPolygon,
+  routeAround,
+  segmentHitsPolygon,
+  tfrBlocks,
+  type Pt,
+  type Tfr,
+} from "./tfr";
+import { waypointByName } from "./waypoints";
 
 export type FlightPlan = {
   id: string;
@@ -24,8 +33,27 @@ export type FlightPlan = {
   aircraft_icao?: string | null;
   registration?: string | null;
   remarks?: string | null;
-
+  /** "vectors" = direct track avoiding TFRs, "waypoints" = follow the filed fixes. */
+  nav_mode?: string;
+  waypoints?: string[];
 };
+
+export type NavMode = "vectors" | "waypoints";
+
+export const navMode = (plan: FlightPlan): NavMode =>
+  plan.nav_mode === "waypoints" ? "waypoints" : "vectors";
+
+export const planWaypoints = (plan: FlightPlan): string[] =>
+  (plan.waypoints ?? []).map((w) => w.trim().toUpperCase()).filter(Boolean);
+
+/** Route string shown to controllers: the filed fixes, or DCT for radar vectors. */
+export function routeText(plan: FlightPlan): string {
+  if (navMode(plan) === "waypoints") {
+    const wps = planWaypoints(plan);
+    if (wps.length) return wps.join(" ");
+  }
+  return plan.route?.trim() || "DCT";
+}
 
 
 
@@ -49,6 +77,16 @@ export type LiveFlight = {
   path: Pt[];
   /** TFRs this flight is routing around. */
   avoiding: string[];
+  /** How the track is built: radar vectors or the filed waypoints. */
+  nav: NavMode;
+  /** Named fixes the filed route follows, in order. */
+  fixes: { name: string; x: number; y: number }[];
+  /** Restricted areas the filed waypoint route cuts through. */
+  violating: string[];
+  /** Restricted areas the aircraft is about to enter (within ~2 min). */
+  approaching: string[];
+  /** Restricted areas the aircraft is inside right now. */
+  inside: string[];
 };
 
 const MIN = 60_000;
@@ -81,31 +119,74 @@ export function computeFlight(plan: FlightPlan, now: number, tfrs: Tfr[] = []): 
   const blocking = tfrs.filter((t) => tfrBlocks(t, plan.callsign, plan.airline));
   const start: Pt = { x: dep.x, y: dep.y };
   const end: Pt = { x: arr.x, y: arr.y };
-  const detour = routeAround(start, end, blocking.map((t) => t.points));
-  const rerouted = detour.length > 2;
+  const nav = navMode(plan);
 
-  const dx = arr.x - dep.x;
-  const dy = arr.y - dep.y;
-  const dist = Math.hypot(dx, dy) || 1;
+  const fixes = planWaypoints(plan)
+    .map((name) => {
+      const wp = waypointByName(name);
+      return wp ? { name: wp.name, x: wp.x, y: wp.y } : null;
+    })
+    .filter((w): w is { name: string; x: number; y: number } => !!w);
 
-  // Straight legs get a slight great-circle-like bow so tracks don't look like
-  // plain rulers; detoured legs already have shape from the avoidance waypoints.
-  let path: Pt[] = detour;
-  if (!rerouted) {
-    const bow = Math.min(dist * 0.08, 24);
-    const nx = -dy / dist;
-    const ny = dx / dist;
-    path = Array.from({ length: 17 }, (_, i) => {
-      const p = i / 16;
-      const arc = Math.sin(p * Math.PI) * bow;
-      return { x: dep.x + dx * p + nx * arc, y: dep.y + dy * p + ny * arc };
-    });
+  let path: Pt[];
+  let rerouted = false;
+  const violating: string[] = [];
+
+  if (nav === "waypoints" && fixes.length) {
+    // Follow the filed fixes exactly — no automatic avoidance, so a route filed
+    // through a restricted area shows up as a violation instead of being bent.
+    path = [start, ...fixes.map((f) => ({ x: f.x, y: f.y })), end];
+    for (const t of blocking) {
+      for (let i = 1; i < path.length; i++) {
+        if (segmentHitsPolygon(path[i - 1]!, path[i]!, t.points)) {
+          violating.push(t.name);
+          break;
+        }
+      }
+    }
+  } else {
+    const detour = routeAround(start, end, blocking.map((t) => t.points));
+    rerouted = detour.length > 2;
+
+    const dx = arr.x - dep.x;
+    const dy = arr.y - dep.y;
+    const dist = Math.hypot(dx, dy) || 1;
+
+    // Straight legs get a slight great-circle-like bow so tracks don't look like
+    // plain rulers; detoured legs already have shape from the avoidance waypoints.
+    path = detour;
+    if (!rerouted) {
+      const bow = Math.min(dist * 0.08, 24);
+      const nx = -dy / dist;
+      const ny = dx / dist;
+      path = Array.from({ length: 17 }, (_, i) => {
+        const p = i / 16;
+        const arc = Math.sin(p * Math.PI) * bow;
+        return { x: dep.x + dx * p + nx * arc, y: dep.y + dy * p + ny * arc };
+      });
+    }
   }
 
   const at = pointAlong(path, progress);
   const x = at.x;
   const y = at.y;
   const heading = at.heading;
+
+  // Airspace proximity: where the aircraft is now, and where it will be in two
+  // minutes at the current progress rate.
+  const inside: string[] = [];
+  const approaching: string[] = [];
+  const flying = raw > 0 && raw < 1;
+  const lookahead = pointAlong(path, Math.min(1, progress + (2 * MIN) / total));
+  for (const t of blocking) {
+    if (t.points.length < 3) continue;
+    if (pointInPolygon({ x, y }, t.points)) inside.push(t.name);
+    else if (
+      flying &&
+      segmentHitsPolygon({ x, y }, { x: lookahead.x, y: lookahead.y }, t.points)
+    )
+      approaching.push(t.name);
+  }
 
   const altitude =
     phase === "scheduled" || phase === "arrived"
@@ -132,6 +213,11 @@ export function computeFlight(plan: FlightPlan, now: number, tfrs: Tfr[] = []): 
     minutesToArrival: Math.round((arrMs - now) / MIN),
     path,
     avoiding: rerouted ? blocking.map((t) => t.name) : [],
+    nav,
+    fixes,
+    violating: [...new Set(violating)],
+    approaching: [...new Set(approaching)],
+    inside: [...new Set(inside)],
   };
 }
 

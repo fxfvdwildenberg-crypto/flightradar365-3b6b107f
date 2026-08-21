@@ -5,9 +5,12 @@ import { toast } from "sonner";
 import { ChevronLeft, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { formatHm, type FlightPlan } from "@/lib/flights";
+import { formatHm, navMode, planWaypoints, routeText, type FlightPlan, type NavMode } from "@/lib/flights";
 import { isValidSquawk, QUICK_SQUAWKS } from "@/lib/squawk";
 import { fplFromPlan } from "@/lib/fpl";
+import { useTfrs } from "@/lib/tfr";
+import { routeViolations } from "@/lib/route";
+import { RouteEditor } from "@/components/radar/RouteEditor";
 
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -107,6 +110,18 @@ function PlanCard({
   const [squawk, setSquawk] = useState(plan.squawk ?? "2000");
   const icaoFpl = useMemo(() => fplFromPlan(plan), [plan]);
 
+  const { data: tfrs = [] } = useTfrs();
+  const [draft, setDraft] = useState<{ navMode: NavMode; waypoints: string[] }>({
+    navMode: navMode(plan),
+    waypoints: planWaypoints(plan),
+  });
+  const draftWarnings =
+    draft.navMode === "waypoints"
+      ? routeViolations(plan.dep_icao, plan.arr_icao, draft.waypoints, tfrs, plan.callsign, plan.airline)
+      : [];
+  const routeDirty =
+    draft.navMode !== navMode(plan) || draft.waypoints.join(" ") !== planWaypoints(plan).join(" ");
+
 
   const rows: [string, string][] = [
     ["CALLSIGN", plan.callsign],
@@ -115,7 +130,8 @@ function PlanCard({
     ["TO", plan.arr_icao],
     ["ALTERNATE", plan.alternate_icao || "—"],
     ["CRUISE", `FL${String(Math.round(plan.cruise_alt / 100)).padStart(3, "0")} / ${plan.cruise_speed} kt`],
-    ["ROUTE", plan.route?.trim() || "DCT"],
+    ["ROUTE", routeText(plan)],
+    ["NAV", navMode(plan) === "waypoints" ? "WAYPOINTS" : "RADAR VECTORS"],
   ];
 
   const statusTone =
@@ -153,6 +169,37 @@ function PlanCard({
         </pre>
       </div>
 
+
+      {canReview && (
+        <div className="mt-3 space-y-2 border-t border-border pt-3">
+          <RouteEditor
+            navMode={draft.navMode}
+            waypoints={draft.waypoints}
+            depIcao={plan.dep_icao}
+            arrIcao={plan.arr_icao}
+            callsign={plan.callsign}
+            airline={plan.airline}
+            tfrs={tfrs}
+            onChange={setDraft}
+          />
+          <Button
+            variant="outline"
+            className="w-full"
+            disabled={!routeDirty || draftWarnings.length > 0}
+            onClick={() =>
+              onReview({
+                nav_mode: draft.navMode,
+                waypoints: draft.navMode === "waypoints" ? draft.waypoints : [],
+                ...(draft.navMode === "waypoints" && draft.waypoints.length
+                  ? { route: draft.waypoints.join(" ") }
+                  : {}),
+              })
+            }
+          >
+            Amend route
+          </Button>
+        </div>
+      )}
 
       {canReview && (
         <div className="mt-3 space-y-2 border-t border-border pt-3">
