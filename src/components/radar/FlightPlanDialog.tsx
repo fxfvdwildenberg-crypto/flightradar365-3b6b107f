@@ -9,6 +9,10 @@ import { AIRCRAFT_TYPES, aircraftInfo } from "@/lib/aircraft";
 import { AIRLINES } from "@/lib/aircraft";
 import { buildFpl, typeDesignator, validateFpl, type FplInput } from "@/lib/fpl";
 import { announceFlightPlan } from "@/lib/discord.functions";
+import { useTfrs } from "@/lib/tfr";
+import { routeViolations } from "@/lib/route";
+import type { NavMode } from "@/lib/flights";
+import { RouteEditor } from "@/components/radar/RouteEditor";
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -53,6 +57,17 @@ export function FlightPlanDialog({
     route: "",
     remarks: "",
   });
+  const [navMode, setNavMode] = useState<NavMode>("vectors");
+  const [waypoints, setWaypoints] = useState<string[]>([]);
+  const { data: tfrs = [] } = useTfrs();
+
+  const routeWarnings = useMemo(
+    () =>
+      navMode === "waypoints"
+        ? routeViolations(form.dep_icao, form.arr_icao, waypoints, tfrs, form.callsign, form.airline || null)
+        : [],
+    [navMode, form.dep_icao, form.arr_icao, waypoints, tfrs, form.callsign, form.airline],
+  );
 
   const set = <K extends keyof typeof form>(k: K, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -82,11 +97,11 @@ export function FlightPlanDialog({
       arrTime: new Date(form.arr_time).toISOString(),
       cruiseSpeed: Number(form.cruise_speed) || 0,
       cruiseFl: Number(form.cruise_fl) || 0,
-      route: form.route,
+      route: navMode === "waypoints" && waypoints.length ? waypoints.join(" ") : form.route,
       alternateIcao: form.alternate_icao,
       remarks: form.remarks,
     }),
-    [form],
+    [form, navMode, waypoints],
   );
 
   const issues = useMemo(() => validateFpl(input), [input]);
@@ -113,8 +128,13 @@ export function FlightPlanDialog({
           arr_time: new Date(form.arr_time).toISOString(),
           cruise_alt: (Number(form.cruise_fl) || 350) * 100,
           cruise_speed: Number(form.cruise_speed) || 450,
-          route: form.route.trim().toUpperCase() || null,
+          route:
+            navMode === "waypoints" && waypoints.length
+              ? waypoints.join(" ")
+              : form.route.trim().toUpperCase() || null,
           remarks: form.remarks.trim() || null,
+          nav_mode: navMode,
+          waypoints: navMode === "waypoints" ? waypoints : [],
         })
         .select("id")
         .single();
@@ -324,15 +344,33 @@ export function FlightPlanDialog({
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="font-display text-[11px] tracking-console text-muted-foreground">Route</Label>
-              <Input
-                value={form.route}
-                placeholder="DCT ALPHA DCT"
-                className="font-mono uppercase"
-                onChange={(e) => set("route", e.target.value.toUpperCase())}
-              />
-            </div>
+            <RouteEditor
+              navMode={navMode}
+              waypoints={waypoints}
+              depIcao={form.dep_icao}
+              arrIcao={form.arr_icao}
+              callsign={form.callsign}
+              airline={form.airline || null}
+              tfrs={tfrs}
+              onChange={(next) => {
+                setNavMode(next.navMode);
+                setWaypoints(next.waypoints);
+              }}
+            />
+
+            {navMode === "vectors" && (
+              <div className="space-y-1.5">
+                <Label className="font-display text-[11px] tracking-console text-muted-foreground">
+                  Route remarks (optional)
+                </Label>
+                <Input
+                  value={form.route}
+                  placeholder="DCT"
+                  className="font-mono uppercase"
+                  onChange={(e) => set("route", e.target.value.toUpperCase())}
+                />
+              </div>
+            )}
 
             <div className="space-y-1.5">
               <Label className="font-display text-[11px] tracking-console text-muted-foreground">
@@ -376,11 +414,16 @@ export function FlightPlanDialog({
           </TabsContent>
         </Tabs>
 
-        <DialogFooter>
+        <DialogFooter className="flex-col gap-2">
+          {routeWarnings.length > 0 && (
+            <p className="w-full text-xs text-destructive">
+              Fix the route first — it crosses {routeWarnings.join(", ")}.
+            </p>
+          )}
           <Button
             className="w-full"
             onClick={() => mutation.mutate()}
-            disabled={mutation.isPending || issues.length > 0}
+            disabled={mutation.isPending || issues.length > 0 || routeWarnings.length > 0}
           >
             {mutation.isPending ? "Filing…" : "File flight plan"}
           </Button>

@@ -316,6 +316,7 @@ export type Database = {
           flight_rules: string
           flight_type: string
           id: string
+          nav_mode: string
           registration: string | null
           remarks: string | null
           route: string | null
@@ -323,6 +324,7 @@ export type Database = {
           status: string
           updated_at: string
           user_id: string | null
+          waypoints: string[]
         }
         Insert: {
           aircraft?: string
@@ -342,6 +344,7 @@ export type Database = {
           flight_rules?: string
           flight_type?: string
           id?: string
+          nav_mode?: string
           registration?: string | null
           remarks?: string | null
           route?: string | null
@@ -349,6 +352,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string | null
+          waypoints?: string[]
         }
         Update: {
           aircraft?: string
@@ -368,6 +372,7 @@ export type Database = {
           flight_rules?: string
           flight_type?: string
           id?: string
+          nav_mode?: string
           registration?: string | null
           remarks?: string | null
           route?: string | null
@@ -375,6 +380,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string | null
+          waypoints?: string[]
         }
         Relationships: []
       }

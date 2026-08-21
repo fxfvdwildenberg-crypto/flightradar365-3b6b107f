@@ -1,4 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   ChevronDown,
   Eye,
@@ -7,6 +9,7 @@ import {
   Pin,
   Plane,
   Radio,
+  Route as RouteIcon,
   TriangleAlert,
   X,
 } from "lucide-react";
@@ -14,9 +17,12 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { SIDE_VIEW } from "@/lib/aircraft";
 import { airlineBadge, useAirlines } from "@/lib/airlines";
-import { formatHm, phaseLabel, type LiveFlight } from "@/lib/flights";
+import { formatHm, navMode, phaseLabel, planWaypoints, routeText, type LiveFlight, type NavMode } from "@/lib/flights";
 import { isEmergencySquawk, squawkInfo } from "@/lib/squawk";
 import { fplFromPlan } from "@/lib/fpl";
+import { useTfrs } from "@/lib/tfr";
+import { routeViolations } from "@/lib/route";
+import { RouteEditor } from "@/components/radar/RouteEditor";
 
 import { Button } from "@/components/ui/button";
 import {
