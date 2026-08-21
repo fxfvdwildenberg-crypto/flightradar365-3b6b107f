@@ -103,6 +103,8 @@ function PlanCard({
   onReview: (patch: Partial<FlightPlan>) => void;
 }) {
   const [squawk, setSquawk] = useState(plan.squawk ?? "2000");
+  const icaoFpl = useMemo(() => fplFromPlan(plan), [plan]);
+
 
   const rows: [string, string][] = [
     ["CALLSIGN", plan.callsign],
