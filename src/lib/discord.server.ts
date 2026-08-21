@@ -6,6 +6,7 @@
  */
 
 import { buildFpl } from "./fpl";
+import { atisText } from "./atis-format";
 
 const FLIGHTPLAN_CHANNEL_ID = "1513951469018021898";
 const ATIS_CHANNEL_ID = "1514326357763686611";
@@ -106,34 +107,24 @@ type AtisRow = {
   remarks: string | null;
 };
 
-export async function postAtisMessage(atis: AtisRow): Promise<PostResult> {
+export async function postAtisMessage(atis: AtisRow & { updated_at?: string }): Promise<PostResult> {
   const line = (name: string, value: string | null | undefined) =>
     value && value.trim() ? { name, value: value.trim(), inline: true } : null;
 
   const fields = [
-    line("Runway", atis.runway_in_use),
+    line("Departure runway", atis.runway_in_use),
+    line("Arrival runway", atis.approaches ?? atis.runway_in_use),
     line("Wind", atis.wind),
     line("Visibility", atis.visibility),
     line("Clouds", atis.clouds),
     line("Temp / Dew", atis.temperature),
     line("QNH", atis.qnh),
-    line("Approaches", atis.approaches),
   ].filter(Boolean);
 
-  const text = [
-    `${atis.airport_icao.toUpperCase()} INFORMATION ${atis.letter.toUpperCase()}`,
-    atis.runway_in_use ? `RWY IN USE ${atis.runway_in_use}` : "",
-    atis.wind ? `WIND ${atis.wind}` : "",
-    atis.visibility ? `VIS ${atis.visibility}` : "",
-    atis.clouds ? `CLOUD ${atis.clouds}` : "",
-    atis.temperature ? `TEMP ${atis.temperature}` : "",
-    atis.qnh ? `QNH ${atis.qnh}` : "",
-    atis.remarks ? atis.remarks : "",
-    `ADVISE ON INITIAL CONTACT YOU HAVE INFORMATION ${atis.letter.toUpperCase()}`,
-  ]
+  const text = [atisText(atis), atis.remarks?.trim() ? atis.remarks.trim() : ""]
     .filter(Boolean)
-    .join(". ")
-    .toUpperCase();
+    .join(" ");
+
 
   return send(ATIS_CHANNEL_ID, {
     embeds: [

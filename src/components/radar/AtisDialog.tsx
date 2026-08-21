@@ -30,6 +30,7 @@ export function AtisDialog({
   const [form, setForm] = useState({
     letter: "A",
     runway_in_use: "",
+    approaches: "",
     wind: "",
     visibility: "",
     clouds: "",
@@ -117,13 +118,15 @@ export function AtisDialog({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            {field("runway_in_use", "Runway", "27L")}
+            {field("runway_in_use", "Departure runway", "27L")}
+            {field("approaches", "Arrival runway", "27R")}
             {field("wind", "Wind", "250/12KT")}
             {field("visibility", "Visibility", "10KM")}
             {field("clouds", "Clouds", "FEW030")}
             {field("temperature", "Temp / Dew", "18/12")}
             {field("qnh", "QNH", "1013")}
           </div>
+
 
           <div className="space-y-1.5">
             <Label className="font-display text-[11px] tracking-console text-muted-foreground">Remarks</Label>

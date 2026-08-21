@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { atisText } from "@/lib/atis-format";
 
 export type AtcPosition = "ground" | "tower" | "center";
 
@@ -126,55 +127,17 @@ export function pickAircraftImage(
 }
 
 
-function zulu(iso: string): string {
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}`;
-}
-
 /**
- * The standard ATIS broadcast, exactly as pilots expect to read or hear it.
- *
- * [Airport] ATIS [Letter] / Information [LETTER], [TIME] ZULU / weather /
- * runways and approaches in use / notices / advisory line.
+ * The standard ATC365 ATIS broadcast, identical in text and speech.
  */
-export function atisReport(atis: Atis, airportName: string): string {
-  const L = atis.letter.toUpperCase();
-  const weather = [
-    atis.wind ? `Wind ${atis.wind} knots.` : "Wind calm.",
-    atis.visibility ? `Visibility ${atis.visibility}.` : "",
-    atis.clouds ? `${atis.clouds}.` : "",
-    atis.temperature
-      ? `Temperature ${atis.temperature}${atis.dew_point ? `, dew point ${atis.dew_point}` : ""}.`
-      : "",
-    atis.altimeter || atis.qnh ? `Altimeter ${atis.altimeter || atis.qnh}.` : "",
-  ].filter(Boolean);
-
-  const ops = [
-    atis.runway_in_use ? `Runway(s) in use: ${atis.runway_in_use}.` : "",
-    atis.approaches ? `Approaches in use: ${atis.approaches}.` : "",
-  ].filter(Boolean);
-
-  const extra = [atis.notices, atis.remarks].filter((v) => v && v.trim()).join(" ");
-
-  return [
-    `${airportName} ATIS ${L}`,
-    "",
-    `Information ${L}, ${zulu(atis.updated_at)} ZULU.`,
-    "",
-    `${airportName} weather:`,
-    ...weather,
-    ...(ops.length ? ["", ...ops] : []),
-    ...(extra ? ["", extra] : []),
-    "",
-    `Pilots are advised to have Information ${L} on initial contact.`,
-  ].join("\n");
+export function atisReport(atis: Atis, _airportName?: string): string {
+  return atisText(atis);
 }
 
 /** Human-readable broadcast text used for the ATIS text-to-speech playback. */
-export function atisSpokenText(atis: Atis, airportName: string): string {
+export function atisSpokenText(atis: Atis, _airportName?: string): string {
   if (atis.spoken_text?.trim()) return atis.spoken_text;
-  return atisReport(atis, airportName).replace(/\n+/g, " ");
+  return atisText(atis);
 }
 
 
