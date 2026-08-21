@@ -130,7 +130,8 @@ function PlanCard({
     ["TO", plan.arr_icao],
     ["ALTERNATE", plan.alternate_icao || "—"],
     ["CRUISE", `FL${String(Math.round(plan.cruise_alt / 100)).padStart(3, "0")} / ${plan.cruise_speed} kt`],
-    ["ROUTE", plan.route?.trim() || "DCT"],
+    ["ROUTE", routeText(plan)],
+    ["NAV", navMode(plan) === "waypoints" ? "WAYPOINTS" : "RADAR VECTORS"],
   ];
 
   const statusTone =
