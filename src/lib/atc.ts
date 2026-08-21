@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { atisText } from "@/lib/atis-format";
 
 export type AtcPosition = "ground" | "tower" | "center";
 
