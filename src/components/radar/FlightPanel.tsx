@@ -316,7 +316,18 @@ export function FlightPanel({
                 ]}
               />
             </Section>
+
+            <Section
+              value="fpl"
+              icon={<Radio className="size-4" />}
+              title="ICAO FPL"
+            >
+              <pre className="overflow-x-auto rounded-md border border-border bg-secondary/40 p-2 font-mono text-[11px] leading-relaxed text-foreground">
+                {fplFromPlan(flight.plan)}
+              </pre>
+            </Section>
           </Accordion>
+
 
           {onOpenAcars && (
             <Button className="w-full gap-2 rounded-xl" onClick={onOpenAcars}>
