@@ -11,7 +11,8 @@ import {
   type Airport,
   type Island,
 } from "@/lib/world";
-import type { LiveFlight } from "@/lib/flights";
+import { planWaypoints, type LiveFlight } from "@/lib/flights";
+import { resolveFixes } from "@/lib/route";
 import { ICON_PATHS } from "@/lib/aircraft";
 import { polygonCentroid, type Pt, type Tfr } from "@/lib/tfr";
 
