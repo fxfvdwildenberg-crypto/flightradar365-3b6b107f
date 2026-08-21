@@ -62,6 +62,7 @@ export function FlightPanel({
   isPinned = false,
   onTogglePin,
   onOpenAcars,
+  canEditRoute = false,
   onClose,
 }: {
   flight: LiveFlight;
@@ -73,6 +74,8 @@ export function FlightPanel({
   isPinned?: boolean;
   onTogglePin?: (() => void) | undefined;
   onOpenAcars?: (() => void) | undefined;
+  /** The signed-in pilot owns this flight, or is a controller. */
+  canEditRoute?: boolean;
   onClose: () => void;
 }) {
   const squawk = flight.plan.squawk;
