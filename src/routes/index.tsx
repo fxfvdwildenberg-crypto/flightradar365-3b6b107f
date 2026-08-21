@@ -691,6 +691,9 @@ function RadarPage() {
             isPinned={pinnedId === selectedFlight.plan.id}
             onTogglePin={() => void togglePin(selectedFlight.plan.id)}
             onOpenAcars={() => setAcarsOpen(true)}
+            canEditRoute={
+              !!user && (selectedFlight.plan.user_id === user.id || isAtc || isAdmin)
+            }
             onClose={() => setSelectedFlightId(null)}
           />
         )}
