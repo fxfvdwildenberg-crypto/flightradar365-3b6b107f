@@ -16,6 +16,8 @@ import { SIDE_VIEW } from "@/lib/aircraft";
 import { airlineBadge, useAirlines } from "@/lib/airlines";
 import { formatHm, phaseLabel, type LiveFlight } from "@/lib/flights";
 import { isEmergencySquawk, squawkInfo } from "@/lib/squawk";
+import { fplFromPlan } from "@/lib/fpl";
+
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
