@@ -14,18 +14,152 @@ export type Database = {
   }
   public: {
     Tables: {
+      aircraft_images: {
+        Row: {
+          aircraft: string
+          airline: string
+          created_at: string
+          image_url: string
+        }
+        Insert: {
+          aircraft: string
+          airline?: string
+          created_at?: string
+          image_url: string
+        }
+        Update: {
+          aircraft?: string
+          airline?: string
+          created_at?: string
+          image_url?: string
+        }
+        Relationships: []
+      }
+      airlines: {
+        Row: {
+          created_at: string
+          iata: string | null
+          icao: string | null
+          logo_url: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          iata?: string | null
+          icao?: string | null
+          logo_url?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          iata?: string | null
+          icao?: string | null
+          logo_url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      airports: {
+        Row: {
+          created_at: string
+          elevation: number
+          iata: string | null
+          icao: string
+          image_url: string | null
+          info: string | null
+          island: string
+          major: boolean
+          name: string
+          runway: number
+          updated_at: string
+          x: number
+          y: number
+        }
+        Insert: {
+          created_at?: string
+          elevation?: number
+          iata?: string | null
+          icao: string
+          image_url?: string | null
+          info?: string | null
+          island: string
+          major?: boolean
+          name: string
+          runway?: number
+          updated_at?: string
+          x: number
+          y: number
+        }
+        Update: {
+          created_at?: string
+          elevation?: number
+          iata?: string | null
+          icao?: string
+          image_url?: string | null
+          info?: string | null
+          island?: string
+          major?: boolean
+          name?: string
+          runway?: number
+          updated_at?: string
+          x?: number
+          y?: number
+        }
+        Relationships: []
+      }
+      atc_sessions: {
+        Row: {
+          airport_icao: string
+          discord_username: string | null
+          id: string
+          online: boolean
+          position: string
+          roblox_username: string | null
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          airport_icao: string
+          discord_username?: string | null
+          id?: string
+          online?: boolean
+          position: string
+          roblox_username?: string | null
+          started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          airport_icao?: string
+          discord_username?: string | null
+          id?: string
+          online?: boolean
+          position?: string
+          roblox_username?: string | null
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       atis: {
         Row: {
           active: boolean
           airport_icao: string
+          altimeter: string | null
+          approaches: string | null
           clouds: string | null
           created_at: string
           created_by: string | null
+          dew_point: string | null
           id: string
           letter: string
+          notices: string | null
           qnh: string | null
           remarks: string | null
           runway_in_use: string | null
+          spoken_text: string | null
           temperature: string | null
           updated_at: string
           visibility: string | null
@@ -34,14 +168,19 @@ export type Database = {
         Insert: {
           active?: boolean
           airport_icao: string
+          altimeter?: string | null
+          approaches?: string | null
           clouds?: string | null
           created_at?: string
           created_by?: string | null
+          dew_point?: string | null
           id?: string
           letter?: string
+          notices?: string | null
           qnh?: string | null
           remarks?: string | null
           runway_in_use?: string | null
+          spoken_text?: string | null
           temperature?: string | null
           updated_at?: string
           visibility?: string | null
@@ -50,14 +189,19 @@ export type Database = {
         Update: {
           active?: boolean
           airport_icao?: string
+          altimeter?: string | null
+          approaches?: string | null
           clouds?: string | null
           created_at?: string
           created_by?: string | null
+          dew_point?: string | null
           id?: string
           letter?: string
+          notices?: string | null
           qnh?: string | null
           remarks?: string | null
           runway_in_use?: string | null
+          spoken_text?: string | null
           temperature?: string | null
           updated_at?: string
           visibility?: string | null
@@ -65,19 +209,50 @@ export type Database = {
         }
         Relationships: []
       }
+      flight_favorites: {
+        Row: {
+          created_at: string
+          flight_plan_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          flight_plan_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          flight_plan_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flight_favorites_flight_plan_id_fkey"
+            columns: ["flight_plan_id"]
+            isOneToOne: false
+            referencedRelation: "flight_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       flight_plans: {
         Row: {
           aircraft: string
           airline: string | null
+          alternate_icao: string | null
           arr_icao: string
           arr_time: string
+          atc_note: string | null
+          atc_status: string
           callsign: string
           created_at: string
           cruise_alt: number
+          cruise_speed: number
           dep_icao: string
           dep_time: string
           id: string
           route: string | null
+          squawk: string
           status: string
           updated_at: string
           user_id: string | null
@@ -85,15 +260,20 @@ export type Database = {
         Insert: {
           aircraft?: string
           airline?: string | null
+          alternate_icao?: string | null
           arr_icao: string
           arr_time: string
+          atc_note?: string | null
+          atc_status?: string
           callsign: string
           created_at?: string
           cruise_alt?: number
+          cruise_speed?: number
           dep_icao: string
           dep_time: string
           id?: string
           route?: string | null
+          squawk?: string
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -101,20 +281,51 @@ export type Database = {
         Update: {
           aircraft?: string
           airline?: string | null
+          alternate_icao?: string | null
           arr_icao?: string
           arr_time?: string
+          atc_note?: string | null
+          atc_status?: string
           callsign?: string
           created_at?: string
           cruise_alt?: number
+          cruise_speed?: number
           dep_icao?: string
           dep_time?: string
           id?: string
           route?: string | null
+          squawk?: string
           status?: string
           updated_at?: string
           user_id?: string | null
         }
         Relationships: []
+      }
+      flight_views: {
+        Row: {
+          flight_plan_id: string
+          seen_at: string
+          viewer_key: string
+        }
+        Insert: {
+          flight_plan_id: string
+          seen_at?: string
+          viewer_key: string
+        }
+        Update: {
+          flight_plan_id?: string
+          seen_at?: string
+          viewer_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flight_views_flight_plan_id_fkey"
+            columns: ["flight_plan_id"]
+            isOneToOne: false
+            referencedRelation: "flight_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
