@@ -110,6 +110,18 @@ function PlanCard({
   const [squawk, setSquawk] = useState(plan.squawk ?? "2000");
   const icaoFpl = useMemo(() => fplFromPlan(plan), [plan]);
 
+  const { data: tfrs = [] } = useTfrs();
+  const [draft, setDraft] = useState<{ navMode: NavMode; waypoints: string[] }>({
+    navMode: navMode(plan),
+    waypoints: planWaypoints(plan),
+  });
+  const draftWarnings =
+    draft.navMode === "waypoints"
+      ? routeViolations(plan.dep_icao, plan.arr_icao, draft.waypoints, tfrs, plan.callsign, plan.airline)
+      : [];
+  const routeDirty =
+    draft.navMode !== navMode(plan) || draft.waypoints.join(" ") !== planWaypoints(plan).join(" ");
+
 
   const rows: [string, string][] = [
     ["CALLSIGN", plan.callsign],
