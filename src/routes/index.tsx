@@ -27,6 +27,7 @@ import {
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { RequireAuth } from "@/components/RequireAuth";
 import { useAirportRegistry } from "@/lib/airports";
 import { pickAircraftImage, useAircraftImages, useAtcSessions, useAtisMap } from "@/lib/atc";
 import { ISLANDS, AIRPORTS, airportsOfIsland, islandBySlug } from "@/lib/world";
@@ -89,7 +90,11 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: RadarPage,
+  component: () => (
+    <RequireAuth>
+      <RadarPage />
+    </RequireAuth>
+  ),
 });
 
 function RadarPage() {

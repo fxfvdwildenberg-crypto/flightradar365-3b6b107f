@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ChevronLeft, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { RequireAuth } from "@/components/RequireAuth";
 import { formatHm, navMode, planWaypoints, routeText, type FlightPlan, type NavMode } from "@/lib/flights";
 import { isValidSquawk, QUICK_SQUAWKS } from "@/lib/squawk";
 import { fplFromPlan } from "@/lib/fpl";
@@ -33,7 +34,11 @@ export const Route = createFileRoute("/atc")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: AtcPage,
+  component: () => (
+    <RequireAuth>
+      <AtcPage />
+    </RequireAuth>
+  ),
 });
 
 function AtcPage() {

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ChevronLeft, Trash2, TriangleAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { RequireAuth } from "@/components/RequireAuth";
 import { formatHm, type FlightPlan } from "@/lib/flights";
 import { isValidSquawk, QUICK_SQUAWKS, squawkInfo } from "@/lib/squawk";
 import { Logo } from "@/components/Logo";
@@ -27,7 +28,11 @@ export const Route = createFileRoute("/my-flights")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: MyFlightsPage,
+  component: () => (
+    <RequireAuth>
+      <MyFlightsPage />
+    </RequireAuth>
+  ),
 });
 
 function MyFlightsPage() {
