@@ -40,7 +40,8 @@ export function useAirportRegistry() {
       const { data, error } = await supabase.from("airports").select("*").order("icao");
       if (error) throw error;
       const rows = (data ?? []) as AirportRow[];
-      if (rows.length) setAirports(rows.map(rowToAirport));
+      // Always sync — including an empty result — so deletions leave the map.
+      setAirports(rows.map(rowToAirport));
       return rows;
     },
   });
