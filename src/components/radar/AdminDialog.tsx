@@ -51,16 +51,27 @@ export function AdminDialog({
 }) {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<string | null>(initialIcao ?? null);
+  /** Bumped after every save so the form remounts empty for the next entry. */
+  const [formNonce, setFormNonce] = useState(0);
 
   const { data: airports = [] } = useQuery({
     queryKey: ["admin_airports"],
     enabled: open,
+    staleTime: 0,
     queryFn: async () => {
       const { data, error } = await supabase.from("airports").select("*").order("icao");
       if (error) throw error;
       return data as AirportRow[];
     },
   });
+
+  /** Refetch (not just invalidate) so the list reflects the write immediately. */
+  const refreshAirports = async () => {
+    await Promise.all([
+      qc.refetchQueries({ queryKey: ["admin_airports"] }),
+      qc.refetchQueries({ queryKey: ["airports"] }),
+    ]);
+  };
 
   const current = useMemo(
     () => airports.find((a) => a.icao === editing) ?? null,
