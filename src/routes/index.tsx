@@ -28,7 +28,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { RequireAuth } from "@/components/RequireAuth";
-import { useAirportRegistry } from "@/lib/airports";
+import { useAirportRegistry, useAirportsVersion } from "@/lib/airports";
 import { pickAircraftImage, useAircraftImages, useAtcSessions, useAtisMap } from "@/lib/atc";
 import { ISLANDS, AIRPORTS, airportsOfIsland, islandBySlug } from "@/lib/world";
 import { computeFlight, formatHm, isVisibleOnRadar, type FlightPlan, type LiveFlight } from "@/lib/flights";
@@ -143,6 +143,7 @@ function RadarPage() {
     });
 
   useAirportRegistry();
+  const airportsVersion = useAirportsVersion();
   const { data: atcByAirport } = useAtcSessions();
   const { data: atisByAirport } = useAtisMap();
   const { data: aircraftImages } = useAircraftImages();
