@@ -1,6 +1,12 @@
+import { useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { setAirports, type Airport } from "@/lib/world";
+import {
+  getAirportsVersion,
+  setAirports,
+  subscribeAirports,
+  type Airport,
+} from "@/lib/world";
 
 export type AirportRow = {
   icao: string;
@@ -30,6 +36,15 @@ export const rowToAirport = (r: AirportRow): Airport => ({
   info: r.info,
   image_url: r.image_url,
 });
+
+/**
+ * Re-renders the caller whenever the airport registry is replaced.
+ * The registry is a mutable module array, so React needs this subscription
+ * to notice admin adds/edits/deletes.
+ */
+export function useAirportsVersion(): number {
+  return useSyncExternalStore(subscribeAirports, getAirportsVersion, getAirportsVersion);
+}
 
 /** Loads admin-managed airports and syncs them into the world registry. */
 export function useAirportRegistry() {
