@@ -99,7 +99,7 @@ export function AdminDialog({
             <ScrollArea className="max-h-[64vh]">
               <div className="space-y-4 p-4">
                 <AirportForm
-                  key={`${current?.icao ?? "new"}-${pendingPoint ? `${pendingPoint.x},${pendingPoint.y}` : ""}`}
+                  key={`${current?.icao ?? "new"}-${formNonce}-${pendingPoint ? `${pendingPoint.x},${pendingPoint.y}` : ""}`}
                   initial={
                     pendingPoint
                       ? { ...(current ?? EMPTY), x: pendingPoint.x, y: pendingPoint.y }
@@ -108,9 +108,9 @@ export function AdminDialog({
                   isNew={!current}
                   onRequestPlace={onRequestPlace}
                   onDone={() => {
-                    qc.invalidateQueries({ queryKey: ["admin_airports"] });
-                    qc.invalidateQueries({ queryKey: ["airports"] });
                     setEditing(null);
+                    setFormNonce((n) => n + 1);
+                    void refreshAirports();
                   }}
                 />
 
@@ -141,17 +141,22 @@ export function AdminDialog({
                           variant="ghost"
                           aria-label={`Delete ${a.icao}`}
                           onClick={async () => {
-                            const { error } = await supabase
+                            const { data, error } = await supabase
                               .from("airports")
                               .delete()
-                              .eq("icao", a.icao);
+                              .eq("icao", a.icao)
+                              .select("icao");
                             if (error) {
                               toast.error(error.message);
                               return;
                             }
+                            if (!data?.length) {
+                              toast.error("Not allowed — admin role required");
+                              return;
+                            }
                             toast.success(`${a.icao} removed`);
-                            qc.invalidateQueries({ queryKey: ["admin_airports"] });
-                            qc.invalidateQueries({ queryKey: ["airports"] });
+                            if (editing === a.icao) setEditing(null);
+                            await refreshAirports();
                           }}
                         >
                           <Trash2 className="size-4 text-destructive" />
@@ -204,7 +209,7 @@ function AirportForm({
   const save = useMutation({
     mutationFn: async () => {
       if (!f.icao.trim() || !f.name.trim()) throw new Error("ICAO and name are required");
-      const { error } = await supabase.from("airports").upsert({
+      const { data, error } = await supabase.from("airports").upsert({
         icao: f.icao.trim().toUpperCase(),
         iata: f.iata?.trim() || null,
         name: f.name.trim(),
@@ -216,8 +221,9 @@ function AirportForm({
         major: f.major,
         info: f.info?.trim() || null,
         image_url: f.image_url?.trim() || null,
-      });
+      }).select("icao");
       if (error) throw error;
+      if (!data?.length) throw new Error("Not allowed — admin role required");
     },
     onSuccess: () => {
       toast.success(isNew ? "Airport added" : "Airport updated");
