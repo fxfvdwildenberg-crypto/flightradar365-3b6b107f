@@ -193,7 +193,7 @@ function RadarPage() {
         (isl ? Math.hypot(f.x - isl.x, f.y - isl.y) < isl.radius * 3 : false),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plans, clock, focus, tfrs, Array.from(hiddenCats).sort().join(",")]);
+  }, [plans, clock, focus, tfrs, airportsVersion, Array.from(hiddenCats).sort().join(",")]);
 
 
   // Airspace warnings for the signed-in pilot's own flights: one toast per
