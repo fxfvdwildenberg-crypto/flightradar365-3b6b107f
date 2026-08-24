@@ -11,6 +11,7 @@ import {
   type Airport,
   type Island,
 } from "@/lib/world";
+import { useAirportsVersion } from "@/lib/airports";
 import { planWaypoints, type LiveFlight } from "@/lib/flights";
 import { resolveFixes } from "@/lib/route";
 import { ICON_PATHS } from "@/lib/aircraft";
@@ -598,7 +599,8 @@ function IslandLayer({
   const path = useMemo(() => ringToPath(islandOutline(island)), [island]);
   const patches = useMemo(() => terrainPatches(island), [island]);
   const roads = useMemo(() => roadNetwork(island), [island]);
-  const ports = useMemo(() => airportsOfIsland(island.slug), [island]);
+  const airportsVersion = useAirportsVersion();
+  const ports = useMemo(() => airportsOfIsland(island.slug), [island, airportsVersion]);
 
   const base =
     island.terrain === "dry"
