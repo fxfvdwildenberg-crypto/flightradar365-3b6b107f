@@ -142,6 +142,19 @@ export const AIRPORTS: Airport[] = [
  */
 export function setAirports(next: Airport[]): void {
   AIRPORTS.splice(0, AIRPORTS.length, ...next);
+  airportsVersion += 1;
+  for (const fn of airportListeners) fn();
+}
+
+/** Bumped on every registry replacement so React views can re-render. */
+let airportsVersion = 0;
+const airportListeners = new Set<() => void>();
+
+export const getAirportsVersion = (): number => airportsVersion;
+
+export function subscribeAirports(fn: () => void): () => void {
+  airportListeners.add(fn);
+  return () => airportListeners.delete(fn);
 }
 
 export const airportByIcao = (icao: string): Airport | undefined =>

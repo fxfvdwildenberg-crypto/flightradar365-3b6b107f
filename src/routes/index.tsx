@@ -28,7 +28,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { RequireAuth } from "@/components/RequireAuth";
-import { useAirportRegistry } from "@/lib/airports";
+import { useAirportRegistry, useAirportsVersion } from "@/lib/airports";
 import { pickAircraftImage, useAircraftImages, useAtcSessions, useAtisMap } from "@/lib/atc";
 import { ISLANDS, AIRPORTS, airportsOfIsland, islandBySlug } from "@/lib/world";
 import { computeFlight, formatHm, isVisibleOnRadar, type FlightPlan, type LiveFlight } from "@/lib/flights";
@@ -143,6 +143,7 @@ function RadarPage() {
     });
 
   useAirportRegistry();
+  const airportsVersion = useAirportsVersion();
   const { data: atcByAirport } = useAtcSessions();
   const { data: atisByAirport } = useAtisMap();
   const { data: aircraftImages } = useAircraftImages();
@@ -192,7 +193,7 @@ function RadarPage() {
         (isl ? Math.hypot(f.x - isl.x, f.y - isl.y) < isl.radius * 3 : false),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plans, clock, focus, tfrs, Array.from(hiddenCats).sort().join(",")]);
+  }, [plans, clock, focus, tfrs, airportsVersion, Array.from(hiddenCats).sort().join(",")]);
 
 
   // Airspace warnings for the signed-in pilot's own flights: one toast per
@@ -287,7 +288,7 @@ function RadarPage() {
         .filter((p) => p.callsign.toLowerCase().includes(q))
         .map((p) => ({ kind: "flight" as const, id: p.id, label: p.callsign, sub: `${p.dep_icao} → ${p.arr_icao}` })),
     ].slice(0, 8);
-  }, [query, plans]);
+  }, [query, plans, airportsVersion]);
 
   const focusedIsland = focus ? islandBySlug(focus) : null;
   const airborne = flights.filter((f) => f.phase === "enroute" || f.phase === "departing" || f.phase === "arriving").length;
