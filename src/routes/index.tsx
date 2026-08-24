@@ -288,7 +288,7 @@ function RadarPage() {
         .filter((p) => p.callsign.toLowerCase().includes(q))
         .map((p) => ({ kind: "flight" as const, id: p.id, label: p.callsign, sub: `${p.dep_icao} → ${p.arr_icao}` })),
     ].slice(0, 8);
-  }, [query, plans]);
+  }, [query, plans, airportsVersion]);
 
   const focusedIsland = focus ? islandBySlug(focus) : null;
   const airborne = flights.filter((f) => f.phase === "enroute" || f.phase === "departing" || f.phase === "arriving").length;
