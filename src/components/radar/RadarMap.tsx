@@ -396,24 +396,24 @@ export function RadarMap({
         {showWaypoints && (
           <g className="pointer-events-none">
             {WAYPOINTS.map((w) => (
-              <g key={`wp-${w.name}`} opacity={0.6}>
+              <g key={`wp-${w.name}`} opacity={0.95}>
                 <polygon
-                  points={`${w.x},${w.y - labelScale * 2.4} ${w.x + labelScale * 2.1},${w.y + labelScale * 1.6} ${w.x - labelScale * 2.1},${w.y + labelScale * 1.6}`}
+                  points={`${w.x},${w.y - labelScale * 3.2} ${w.x + labelScale * 2.8},${w.y + labelScale * 2.2} ${w.x - labelScale * 2.8},${w.y + labelScale * 2.2}`}
                   fill="none"
-                  stroke="var(--muted-foreground)"
-                  strokeWidth={labelScale * 0.7}
+                  stroke="var(--waypoint)"
+                  strokeWidth={labelScale * 1.4}
                 />
-                {labelScale < 0.9 && (
-                  <text
-                    x={w.x + labelScale * 3.4}
-                    y={w.y + labelScale * 1.8}
-                    fontSize={labelScale * 6}
-                    fill="var(--muted-foreground)"
-                    className="font-mono"
-                  >
-                    {w.name}
-                  </text>
-                )}
+                <text
+                  x={w.x + labelScale * 4.2}
+                  y={w.y + labelScale * 2.4}
+                  fontSize={labelScale * 7.5}
+                  fontWeight={600}
+                  fill="var(--waypoint)"
+                  className="font-mono"
+                  style={{ textShadow: "0 1px 3px oklch(0.2 0.03 260 / 0.85)" }}
+                >
+                  {w.name}
+                </text>
               </g>
             ))}
           </g>
