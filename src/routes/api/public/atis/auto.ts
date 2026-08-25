@@ -4,8 +4,8 @@ import { createFileRoute } from "@tanstack/react-router";
  * Automatic ATIS generator.
  *
  * Every airport that has not had a new ATIS filed in the past 6 hours gets one
- * generated from its current weather. Automatic broadcasts always list every
- * runway for both departures and arrivals. Runs on a schedule (hourly).
+ * generated from its current weather. Automatic broadcasts always read
+ * "ALL RUNWAYS" for both departures and arrivals. Runs on a schedule (hourly).
  *
  * Call with `apikey: <publishable key>` or `Authorization: Bearer <PUSH_CRON_SECRET>`.
  */
@@ -34,12 +34,11 @@ async function handle(request: Request): Promise<Response> {
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { airportWeather } = await import("@/lib/weather");
-  const { runwayNames } = await import("@/lib/atis-format");
   const { postAtisMessage } = await import("@/lib/discord.server");
 
   const { data: airports, error } = await supabaseAdmin
     .from("airports")
-    .select("icao, runway")
+    .select("icao")
     .order("icao");
   if (error) return new Response(error.message, { status: 500 });
 
@@ -64,7 +63,7 @@ async function handle(request: Request): Promise<Response> {
     const letter = LETTERS.charAt((prev + 1 + LETTERS.length) % LETTERS.length);
 
     const wx = airportWeather(ap.icao, now);
-    const runways = runwayNames(ap.runway);
+    const runways = "ALL RUNWAYS";
 
     await supabaseAdmin.from("atis").update({ active: false }).eq("airport_icao", ap.icao).eq("active", true);
 
