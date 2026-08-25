@@ -117,6 +117,7 @@ function RadarPage() {
   const [regionsOpen, setRegionsOpen] = useState(false);
   const [showClouds, setShowClouds] = usePersistentState("clouds", false);
   const [showRoutes, setShowRoutes] = usePersistentState("routes", true);
+  const [showWaypoints, setShowWaypoints] = usePersistentState("waypoints", false);
   const [showLabels, setShowLabels] = usePersistentState("labels", true);
   const [query, setQuery] = useState("");
   const [widgets, setWidgets] = usePersistentSet<WidgetKey>("widgets", ["clock"]);
@@ -419,6 +420,14 @@ function RadarPage() {
                     onChange={setShowRoutes}
                   />
                   <SettingRow
+                    id="set-waypoints"
+                    icon={<RouteIcon className="size-4" />}
+                    label="Waypoints"
+                    hint="Draw the enroute waypoint chart"
+                    checked={showWaypoints}
+                    onChange={setShowWaypoints}
+                  />
+                  <SettingRow
                     id="set-labels"
                     icon={<Radio className="size-4" />}
                     label="Callsign labels"
@@ -547,6 +556,7 @@ function RadarPage() {
           selectedFlightId={selectedFlightId}
           showClouds={showClouds}
           showRoutes={showRoutes}
+          showWaypoints={showWaypoints}
           showLabels={showLabels}
           atcByAirport={atcByAirport}
           atisByAirport={atisByAirport}
