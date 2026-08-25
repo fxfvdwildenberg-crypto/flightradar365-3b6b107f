@@ -46,6 +46,7 @@
   --color-airborne: var(--airborne);
   --color-ground: var(--ground);
   --color-scheduled: var(--scheduled);
+  --color-waypoint: var(--waypoint);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -97,6 +98,9 @@
   --land-hi: oklch(0.7 0.14 140);
   --land-dry: oklch(0.79 0.07 105);
   --tarmac: oklch(0.55 0.006 260);
+
+  /* Waypoint chart fixes — bright amber/orange for visibility */
+  --waypoint: oklch(0.78 0.2 65);
 
   /* Flight states */
   --airborne: oklch(0.82 0.16 85);
