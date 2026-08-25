@@ -14,6 +14,7 @@ import {
 import { useAirportsVersion } from "@/lib/airports";
 import { planWaypoints, type LiveFlight } from "@/lib/flights";
 import { resolveFixes } from "@/lib/route";
+import { WAYPOINTS } from "@/lib/waypoints";
 import { ICON_PATHS } from "@/lib/aircraft";
 import { polygonCentroid, type Pt, type Tfr } from "@/lib/tfr";
 
@@ -77,6 +78,8 @@ type Props = {
   showClouds?: boolean | undefined;
   showRoutes?: boolean | undefined;
   showLabels?: boolean | undefined;
+  /** Draw the whole enroute waypoint chart as a background layer. */
+  showWaypoints?: boolean | undefined;
   showAirlineLogos?: boolean | undefined;
   atcByAirport?: Map<string, AtcSession[]> | undefined;
   atisByAirport?: Map<string, Atis> | undefined;
@@ -101,6 +104,7 @@ export function RadarMap({
   showClouds = false,
   showRoutes = true,
   showLabels = true,
+  showWaypoints = false,
   showAirlineLogos = false,
   atcByAirport,
   atisByAirport,
@@ -387,6 +391,33 @@ export function RadarMap({
           />
         ))}
 
+
+        {/* Enroute waypoint chart */}
+        {showWaypoints && (
+          <g className="pointer-events-none">
+            {WAYPOINTS.map((w) => (
+              <g key={`wp-${w.name}`} opacity={0.6}>
+                <polygon
+                  points={`${w.x},${w.y - labelScale * 2.4} ${w.x + labelScale * 2.1},${w.y + labelScale * 1.6} ${w.x - labelScale * 2.1},${w.y + labelScale * 1.6}`}
+                  fill="none"
+                  stroke="var(--muted-foreground)"
+                  strokeWidth={labelScale * 0.7}
+                />
+                {labelScale < 0.9 && (
+                  <text
+                    x={w.x + labelScale * 3.4}
+                    y={w.y + labelScale * 1.8}
+                    fontSize={labelScale * 6}
+                    fill="var(--muted-foreground)"
+                    className="font-mono"
+                  >
+                    {w.name}
+                  </text>
+                )}
+              </g>
+            ))}
+          </g>
+        )}
 
         {/* Flight tracks for the selected flight */}
         {flights
