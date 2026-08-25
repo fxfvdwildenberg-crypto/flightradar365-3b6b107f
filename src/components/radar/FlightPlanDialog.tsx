@@ -85,10 +85,10 @@ export function FlightPlanDialog({
     () => ({
       callsign: form.callsign,
       flightRules: form.flight_rules,
-      flightType: form.flight_type,
+      flightType: "S",
       aircraft: form.aircraft,
       aircraftIcao: form.aircraft_icao,
-      registration: form.registration,
+      registration: "",
       depIcao: form.dep_icao,
       arrIcao: form.arr_icao,
       depTime: new Date(form.dep_time).toISOString(),
