@@ -5,8 +5,7 @@ import { Copy, Download, FileText, Plane } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { AIRPORTS } from "@/lib/world";
-import { AIRCRAFT_TYPES, aircraftInfo } from "@/lib/aircraft";
-import { AIRLINES } from "@/lib/aircraft";
+import { aircraftInfo } from "@/lib/aircraft";
 import { buildFpl, typeDesignator, validateFpl, type FplInput } from "@/lib/fpl";
 import { announceFlightPlan } from "@/lib/discord.functions";
 import { useTfrs } from "@/lib/tfr";
@@ -44,9 +43,7 @@ export function FlightPlanDialog({
     airline: "",
     aircraft: "Airbus A320",
     aircraft_icao: "A320",
-    registration: "",
     flight_rules: "IFR" as "IFR" | "VFR",
-    flight_type: "S",
     dep_icao: "IRFD",
     arr_icao: "IPPH",
     alternate_icao: "",
@@ -87,10 +84,10 @@ export function FlightPlanDialog({
     () => ({
       callsign: form.callsign,
       flightRules: form.flight_rules,
-      flightType: form.flight_type,
+      flightType: "S",
       aircraft: form.aircraft,
       aircraftIcao: form.aircraft_icao,
-      registration: form.registration,
+      registration: "",
       depIcao: form.dep_icao,
       arrIcao: form.arr_icao,
       depTime: new Date(form.dep_time).toISOString(),
@@ -118,9 +115,7 @@ export function FlightPlanDialog({
           airline: form.airline.trim() || null,
           aircraft: form.aircraft,
           aircraft_icao: form.aircraft_icao.trim().toUpperCase() || null,
-          registration: form.registration.trim().toUpperCase() || null,
           flight_rules: form.flight_rules,
-          flight_type: form.flight_type,
           dep_icao: form.dep_icao,
           arr_icao: form.arr_icao,
           alternate_icao: form.alternate_icao.trim().toUpperCase() || null,
@@ -215,44 +210,23 @@ export function FlightPlanDialog({
               </div>
               <div className="space-y-1.5">
                 <Label className="font-display text-[11px] tracking-console text-muted-foreground">Airline</Label>
-                <Select value={form.airline || "none"} onValueChange={(v) => set("airline", v === "none" ? "" : v)}>
-                  <SelectTrigger><SelectValue placeholder="Private" /></SelectTrigger>
-                  <SelectContent className="max-h-72">
-                    <SelectItem value="none">Private / none</SelectItem>
-                    {AIRLINES.map((a) => (
-                      <SelectItem key={a} value={a}>{a}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input
+                  value={form.airline}
+                  placeholder="KLM / Private"
+                  onChange={(e) => set("airline", e.target.value)}
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="font-display text-[11px] tracking-console text-muted-foreground">Aircraft</Label>
-                <Select value={form.aircraft} onValueChange={pickAircraft}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent className="max-h-72">
-                    {AIRCRAFT_TYPES.map((a) => (
-                      <SelectItem key={a.name} value={a.name}>
-                        {a.name} <span className="font-mono text-muted-foreground">{typeDesignator(a.name).icao}</span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="font-display text-[11px] tracking-console text-muted-foreground">Registration</Label>
                 <Input
-                  value={form.registration}
-                  placeholder="PH-ABC"
-                  className="font-mono uppercase"
-                  onChange={(e) => set("registration", e.target.value.toUpperCase())}
+                  value={form.aircraft}
+                  placeholder="Airbus A320"
+                  onChange={(e) => pickAircraft(e.target.value)}
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="font-display text-[11px] tracking-console text-muted-foreground">Flight rules</Label>
                 <Select value={form.flight_rules} onValueChange={(v) => set("flight_rules", v)}>
@@ -260,18 +234,6 @@ export function FlightPlanDialog({
                   <SelectContent>
                     <SelectItem value="IFR">IFR — instrument</SelectItem>
                     <SelectItem value="VFR">VFR — visual</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="font-display text-[11px] tracking-console text-muted-foreground">Flight type</Label>
-                <Select value={form.flight_type} onValueChange={(v) => set("flight_type", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="S">Scheduled airline</SelectItem>
-                    <SelectItem value="N">Non-scheduled / charter</SelectItem>
-                    <SelectItem value="G">General aviation</SelectItem>
-                    <SelectItem value="M">Military</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
