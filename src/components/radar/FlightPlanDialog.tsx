@@ -5,8 +5,7 @@ import { Copy, Download, FileText, Plane } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { AIRPORTS } from "@/lib/world";
-import { AIRCRAFT_TYPES, aircraftInfo } from "@/lib/aircraft";
-import { AIRLINES } from "@/lib/aircraft";
+import { aircraftInfo } from "@/lib/aircraft";
 import { buildFpl, typeDesignator, validateFpl, type FplInput } from "@/lib/fpl";
 import { announceFlightPlan } from "@/lib/discord.functions";
 import { useTfrs } from "@/lib/tfr";
