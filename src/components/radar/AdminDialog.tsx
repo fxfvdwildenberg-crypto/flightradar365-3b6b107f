@@ -81,14 +81,14 @@ export function AdminDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[88vh] max-w-lg overflow-hidden p-0">
-        <DialogHeader className="border-b border-border px-4 py-3">
+      <DialogContent className="max-h-[92vh] max-w-lg overflow-y-auto p-0 flex flex-col">
+        <DialogHeader className="border-b border-border px-4 py-3 shrink-0">
           <DialogTitle className="font-display text-xl tracking-console text-primary">
             Admin console
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="airports">
+        <Tabs defaultValue="airports" className="flex flex-col">
           <TabsList className="mx-4 mt-3 grid grid-cols-3">
             <TabsTrigger value="airports">Airports</TabsTrigger>
             <TabsTrigger value="aircraft">Aircraft</TabsTrigger>
