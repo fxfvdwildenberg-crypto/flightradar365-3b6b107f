@@ -14,6 +14,7 @@ import { Route as AtcRouteImport } from './routes/atc'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as MyFlightsRouteImport } from './routes/my-flights'
 import { Route as ApiPublicAtisAutoRouteImport } from './routes/api/public/atis/auto'
+import { Route as ApiPublicAtisCurrentRouteImport } from './routes/api/public/atis/current'
 import { Route as ApiPublicPushFlightEventsRouteImport } from './routes/api/public/push/flight-events'
 import { Route as ApiPublicAuthDiscordCallbackRouteImport } from './routes/api/public/auth/discord/callback'
 import { Route as ApiPublicAuthDiscordStartRouteImport } from './routes/api/public/auth/discord/start'
@@ -43,6 +44,11 @@ const ApiPublicAtisAutoRoute = ApiPublicAtisAutoRouteImport.update({
   path: '/api/public/atis/auto',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAtisCurrentRoute = ApiPublicAtisCurrentRouteImport.update({
+  id: '/api/public/atis/current',
+  path: '/api/public/atis/current',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPushFlightEventsRoute =
   ApiPublicPushFlightEventsRouteImport.update({
     id: '/api/public/push/flight-events',
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/my-flights': typeof MyFlightsRoute
   '/api/public/atis/auto': typeof ApiPublicAtisAutoRoute
+  '/api/public/atis/current': typeof ApiPublicAtisCurrentRoute
   '/api/public/push/flight-events': typeof ApiPublicPushFlightEventsRoute
   '/api/public/auth/discord/callback': typeof ApiPublicAuthDiscordCallbackRoute
   '/api/public/auth/discord/start': typeof ApiPublicAuthDiscordStartRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/my-flights': typeof MyFlightsRoute
   '/api/public/atis/auto': typeof ApiPublicAtisAutoRoute
+  '/api/public/atis/current': typeof ApiPublicAtisCurrentRoute
   '/api/public/push/flight-events': typeof ApiPublicPushFlightEventsRoute
   '/api/public/auth/discord/callback': typeof ApiPublicAuthDiscordCallbackRoute
   '/api/public/auth/discord/start': typeof ApiPublicAuthDiscordStartRoute
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/my-flights': typeof MyFlightsRoute
   '/api/public/atis/auto': typeof ApiPublicAtisAutoRoute
+  '/api/public/atis/current': typeof ApiPublicAtisCurrentRoute
   '/api/public/push/flight-events': typeof ApiPublicPushFlightEventsRoute
   '/api/public/auth/discord/callback': typeof ApiPublicAuthDiscordCallbackRoute
   '/api/public/auth/discord/start': typeof ApiPublicAuthDiscordStartRoute
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/my-flights'
     | '/api/public/atis/auto'
+    | '/api/public/atis/current'
     | '/api/public/push/flight-events'
     | '/api/public/auth/discord/callback'
     | '/api/public/auth/discord/start'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/my-flights'
     | '/api/public/atis/auto'
+    | '/api/public/atis/current'
     | '/api/public/push/flight-events'
     | '/api/public/auth/discord/callback'
     | '/api/public/auth/discord/start'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/my-flights'
     | '/api/public/atis/auto'
+    | '/api/public/atis/current'
     | '/api/public/push/flight-events'
     | '/api/public/auth/discord/callback'
     | '/api/public/auth/discord/start'
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   MyFlightsRoute: typeof MyFlightsRoute
   ApiPublicAtisAutoRoute: typeof ApiPublicAtisAutoRoute
+  ApiPublicAtisCurrentRoute: typeof ApiPublicAtisCurrentRoute
   ApiPublicPushFlightEventsRoute: typeof ApiPublicPushFlightEventsRoute
   ApiPublicAuthDiscordCallbackRoute: typeof ApiPublicAuthDiscordCallbackRoute
   ApiPublicAuthDiscordStartRoute: typeof ApiPublicAuthDiscordStartRoute
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAtisAutoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/atis/current': {
+      id: '/api/public/atis/current'
+      path: '/api/public/atis/current'
+      fullPath: '/api/public/atis/current'
+      preLoaderRoute: typeof ApiPublicAtisCurrentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/push/flight-events': {
       id: '/api/public/push/flight-events'
       path: '/api/public/push/flight-events'
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   MyFlightsRoute: MyFlightsRoute,
   ApiPublicAtisAutoRoute: ApiPublicAtisAutoRoute,
+  ApiPublicAtisCurrentRoute: ApiPublicAtisCurrentRoute,
   ApiPublicPushFlightEventsRoute: ApiPublicPushFlightEventsRoute,
   ApiPublicAuthDiscordCallbackRoute: ApiPublicAuthDiscordCallbackRoute,
   ApiPublicAuthDiscordStartRoute: ApiPublicAuthDiscordStartRoute,
