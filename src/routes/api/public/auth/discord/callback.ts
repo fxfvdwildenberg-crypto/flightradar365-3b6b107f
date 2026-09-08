@@ -80,14 +80,21 @@ export const Route = createFileRoute("/api/public/auth/discord/callback")({
         if (created.data.user) {
           userId = created.data.user.id;
         } else {
-          const list = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
-          userId = list.data.users.find((u) => u.email === email)?.id ?? null;
+          // The account already exists: page through until we find it, so
+          // sign-in keeps working past the first 200 accounts.
+          for (let page = 1; page <= 50 && !userId; page++) {
+            const list = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+            const users = list.data.users ?? [];
+            userId = users.find((u) => u.email === email)?.id ?? null;
+            if (users.length < 200) break;
+          }
           if (userId) {
             await supabaseAdmin.auth.admin.updateUserById(userId, {
               user_metadata: { display_name: displayName, discord_id: me.id },
             });
           }
         }
+
         if (!userId) return deny(origin, "Could not create your account");
 
         await supabaseAdmin
