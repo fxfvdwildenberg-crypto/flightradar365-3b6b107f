@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CANONICAL_ORIGIN, decodeReturnOrigin } from "@/lib/discord-oauth";
 
 function deny(origin: string, reason: string) {
   return Response.redirect(`${origin}/auth?denied=${encodeURIComponent(reason)}`, 302);
@@ -9,7 +10,10 @@ export const Route = createFileRoute("/api/public/auth/discord/callback")({
     handlers: {
       GET: async ({ request }) => {
         const url = new URL(request.url);
-        const origin = url.origin;
+        // Where to send the visitor back to (they may have started on the
+        // preview or another hostname); the OAuth exchange itself must use the
+        // one canonical callback registered with Discord.
+        const origin = decodeReturnOrigin(url.searchParams.get("state"));
         const code = url.searchParams.get("code");
         if (!code) return deny(origin, "Sign-in was cancelled");
 
@@ -32,9 +36,10 @@ export const Route = createFileRoute("/api/public/auth/discord/callback")({
             client_secret: clientSecret,
             grant_type: "authorization_code",
             code,
-            redirect_uri: `${origin}/api/public/auth/discord/callback`,
+            redirect_uri: `${CANONICAL_ORIGIN}/api/public/auth/discord/callback`,
           }),
         });
+
         if (!tokenRes.ok) return deny(origin, "Discord rejected the sign-in");
         const token = (await tokenRes.json()) as { access_token?: string };
         if (!token.access_token) return deny(origin, "Discord rejected the sign-in");
