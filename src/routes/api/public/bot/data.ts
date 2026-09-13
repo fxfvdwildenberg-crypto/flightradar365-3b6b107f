@@ -21,12 +21,13 @@ function timingSafeEqualStr(a: string, b: string): boolean {
 }
 
 export function authorizeBot(request: Request): Response | null {
-  const expected = process.env["BOT_API_KEY"];
+  const expected = (process.env["BOT_API_KEY"] ?? "").trim();
   if (!expected) return new Response("Bot API key not configured", { status: 503 });
-  const provided =
+  const provided = (
     request.headers.get("x-bot-key") ??
-    (request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "");
-  console.log("[botauth] expLen", expected.length, "provLen", provided.length, "expTail", expected.slice(-3), "provTail", provided.slice(-3));
+    request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
+    ""
+  ).trim();
   if (!provided || !timingSafeEqualStr(provided, expected)) {
     return new Response("Unauthorized", { status: 401 });
   }
