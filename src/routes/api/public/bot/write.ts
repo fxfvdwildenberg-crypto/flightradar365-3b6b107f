@@ -134,9 +134,13 @@ export const Route = createFileRoute("/api/public/bot/write")({
         }
 
         if (body.action === "update_flight_plan") {
+          const patch: Record<string, string> = { updated_at: new Date().toISOString() };
+          for (const [key, value] of Object.entries(body.patch)) {
+            if (value !== undefined) patch[key] = value;
+          }
           const { data, error } = await supabaseAdmin
             .from("flight_plans")
-            .update({ ...body.patch, updated_at: new Date().toISOString() })
+            .update(patch)
             .eq("id", body.id)
             .select("id, callsign, status, atc_status, squawk")
             .maybeSingle();
