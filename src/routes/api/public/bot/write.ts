@@ -134,9 +134,19 @@ export const Route = createFileRoute("/api/public/bot/write")({
         }
 
         if (body.action === "update_flight_plan") {
+          const p = body.patch;
+          const patch = {
+            updated_at: new Date().toISOString(),
+            ...(p.status !== undefined ? { status: p.status } : {}),
+            ...(p.atc_status !== undefined ? { atc_status: p.atc_status } : {}),
+            ...(p.atc_note !== undefined ? { atc_note: p.atc_note } : {}),
+            ...(p.squawk !== undefined ? { squawk: p.squawk } : {}),
+            ...(p.route !== undefined ? { route: p.route } : {}),
+            ...(p.nav_mode !== undefined ? { nav_mode: p.nav_mode } : {}),
+          };
           const { data, error } = await supabaseAdmin
             .from("flight_plans")
-            .update({ ...body.patch, updated_at: new Date().toISOString() })
+            .update(patch)
             .eq("id", body.id)
             .select("id, callsign, status, atc_status, squawk")
             .maybeSingle();
