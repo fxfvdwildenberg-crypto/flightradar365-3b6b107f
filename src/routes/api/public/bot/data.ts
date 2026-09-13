@@ -26,6 +26,7 @@ export function authorizeBot(request: Request): Response | null {
   const provided =
     request.headers.get("x-bot-key") ??
     (request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "");
+  console.log("[botauth] expLen", expected.length, "provLen", provided.length, "expTail", expected.slice(-3), "provTail", provided.slice(-3));
   if (!provided || !timingSafeEqualStr(provided, expected)) {
     return new Response("Unauthorized", { status: 401 });
   }
