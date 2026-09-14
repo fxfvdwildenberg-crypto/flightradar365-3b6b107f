@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AtcRouteImport } from './routes/atc'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as MyFlightsRouteImport } from './routes/my-flights'
+import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as ApiPublicAtisAutoRouteImport } from './routes/api/public/atis/auto'
 import { Route as ApiPublicAtisCurrentRouteImport } from './routes/api/public/atis/current'
 import { Route as ApiPublicBotDataRouteImport } from './routes/api/public/bot/data'
@@ -39,6 +40,11 @@ const AuthRoute = AuthRouteImport.update({
 const MyFlightsRoute = MyFlightsRouteImport.update({
   id: '/my-flights',
   path: '/my-flights',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
+  id: '/api/public/track',
+  path: '/api/public/track',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicAtisAutoRoute = ApiPublicAtisAutoRouteImport.update({
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/atc': typeof AtcRoute
   '/auth': typeof AuthRoute
   '/my-flights': typeof MyFlightsRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/api/public/atis/auto': typeof ApiPublicAtisAutoRoute
   '/api/public/atis/current': typeof ApiPublicAtisCurrentRoute
   '/api/public/bot/data': typeof ApiPublicBotDataRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByTo {
   '/atc': typeof AtcRoute
   '/auth': typeof AuthRoute
   '/my-flights': typeof MyFlightsRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/api/public/atis/auto': typeof ApiPublicAtisAutoRoute
   '/api/public/atis/current': typeof ApiPublicAtisCurrentRoute
   '/api/public/bot/data': typeof ApiPublicBotDataRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   '/atc': typeof AtcRoute
   '/auth': typeof AuthRoute
   '/my-flights': typeof MyFlightsRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/api/public/atis/auto': typeof ApiPublicAtisAutoRoute
   '/api/public/atis/current': typeof ApiPublicAtisCurrentRoute
   '/api/public/bot/data': typeof ApiPublicBotDataRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/atc'
     | '/auth'
     | '/my-flights'
+    | '/api/public/track'
     | '/api/public/atis/auto'
     | '/api/public/atis/current'
     | '/api/public/bot/data'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/atc'
     | '/auth'
     | '/my-flights'
+    | '/api/public/track'
     | '/api/public/atis/auto'
     | '/api/public/atis/current'
     | '/api/public/bot/data'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/atc'
     | '/auth'
     | '/my-flights'
+    | '/api/public/track'
     | '/api/public/atis/auto'
     | '/api/public/atis/current'
     | '/api/public/bot/data'
@@ -167,6 +179,7 @@ export interface RootRouteChildren {
   AtcRoute: typeof AtcRoute
   AuthRoute: typeof AuthRoute
   MyFlightsRoute: typeof MyFlightsRoute
+  ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   ApiPublicAtisAutoRoute: typeof ApiPublicAtisAutoRoute
   ApiPublicAtisCurrentRoute: typeof ApiPublicAtisCurrentRoute
   ApiPublicBotDataRoute: typeof ApiPublicBotDataRoute
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       path: '/my-flights'
       fullPath: '/my-flights'
       preLoaderRoute: typeof MyFlightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/track': {
+      id: '/api/public/track'
+      path: '/api/public/track'
+      fullPath: '/api/public/track'
+      preLoaderRoute: typeof ApiPublicTrackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/atis/auto': {
@@ -263,6 +283,7 @@ const rootRouteChildren: RootRouteChildren = {
   AtcRoute: AtcRoute,
   AuthRoute: AuthRoute,
   MyFlightsRoute: MyFlightsRoute,
+  ApiPublicTrackRoute: ApiPublicTrackRoute,
   ApiPublicAtisAutoRoute: ApiPublicAtisAutoRoute,
   ApiPublicAtisCurrentRoute: ApiPublicAtisCurrentRoute,
   ApiPublicBotDataRoute: ApiPublicBotDataRoute,
