@@ -410,6 +410,47 @@ export type Database = {
           },
         ]
       }
+      live_aircraft: {
+        Row: {
+          altitude: number
+          callsign: string
+          flight_plan_id: string | null
+          ground_speed: number
+          heading: number
+          updated_at: string
+          x: number
+          y: number
+        }
+        Insert: {
+          altitude?: number
+          callsign: string
+          flight_plan_id?: string | null
+          ground_speed?: number
+          heading?: number
+          updated_at?: string
+          x: number
+          y: number
+        }
+        Update: {
+          altitude?: number
+          callsign?: string
+          flight_plan_id?: string | null
+          ground_speed?: number
+          heading?: number
+          updated_at?: string
+          x?: number
+          y?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_aircraft_flight_plan_id_fkey"
+            columns: ["flight_plan_id"]
+            isOneToOne: false
+            referencedRelation: "flight_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
