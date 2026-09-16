@@ -56,18 +56,20 @@ export const Route = createFileRoute("/api/public/bot/data")({
         const url = new URL(request.url);
         const resource = (url.searchParams.get("resource") ?? "airports") as Resource;
         if (!RESOURCES.includes(resource)) {
-          return Response.json({ error: `resource must be one of ${RESOURCES.join(", ")}` }, { status: 400 });
+          return json({ error: `resource must be one of ${RESOURCES.join(", ")}` }, 400);
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         if (resource === "airports") {
+          // Explicit wide range so no implicit page size can truncate the list.
           const { data, error } = await supabaseAdmin
             .from("airports")
             .select("icao, iata, name, island, runway, elevation, major, x, y")
-            .order("icao");
-          if (error) return Response.json({ error: error.message }, { status: 500 });
-          return Response.json({ resource, count: data?.length ?? 0, data });
+            .order("icao", { ascending: true })
+            .range(0, 9999);
+          if (error) return json({ error: error.message }, 500);
+          return json({ resource, count: data?.length ?? 0, data });
         }
 
         if (resource === "atis") {
@@ -77,9 +79,10 @@ export const Route = createFileRoute("/api/public/bot/data")({
               "id, airport_icao, letter, runway_in_use, approaches, wind, clouds, temperature, dew_point, qnh, altimeter, visibility, remarks, notices, active, updated_at",
             )
             .eq("active", true)
-            .order("updated_at", { ascending: false });
-          if (error) return Response.json({ error: error.message }, { status: 500 });
-          return Response.json({ resource, count: data?.length ?? 0, data });
+            .order("updated_at", { ascending: false })
+            .range(0, 9999);
+          if (error) return json({ error: error.message }, 500);
+          return json({ resource, count: data?.length ?? 0, data });
         }
 
         const { data, error } = await supabaseAdmin
