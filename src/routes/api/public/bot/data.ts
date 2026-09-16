@@ -92,8 +92,8 @@ export const Route = createFileRoute("/api/public/bot/data")({
           )
           .order("created_at", { ascending: false })
           .limit(200);
-        if (error) return Response.json({ error: error.message }, { status: 500 });
-        return Response.json({ resource, count: data?.length ?? 0, data });
+        if (error) return json({ error: error.message }, 500);
+        return json({ resource, count: data?.length ?? 0, data });
       },
     },
   },
