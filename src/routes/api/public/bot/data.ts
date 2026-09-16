@@ -34,9 +34,21 @@ export function authorizeBot(request: Request): Response | null {
   return null;
 }
 
+const CORS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, OPTIONS",
+  "access-control-allow-headers": "x-bot-key, authorization, content-type",
+  "access-control-max-age": "86400",
+};
+
+function json(body: unknown, status = 200) {
+  return Response.json(body, { status, headers: CORS });
+}
+
 export const Route = createFileRoute("/api/public/bot/data")({
   server: {
     handlers: {
+      OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
       GET: async ({ request }) => {
         const denied = authorizeBot(request);
         if (denied) return denied;
