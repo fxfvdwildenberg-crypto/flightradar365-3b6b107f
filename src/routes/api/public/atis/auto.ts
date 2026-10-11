@@ -59,7 +59,7 @@ async function handle(request: Request): Promise<Response> {
 
   const { data: airports, error } = await supabaseAdmin
     .from("airports")
-    .select("icao")
+    .select("icao, runway")
     .order("icao");
   if (error) return new Response(error.message, { status: 500 });
 
@@ -84,7 +84,9 @@ async function handle(request: Request): Promise<Response> {
     const letter = LETTERS.charAt((prev + 1 + LETTERS.length) % LETTERS.length);
 
     const wx = airportWeather(ap.icao, now);
-    const runways = "ALL RUNWAYS";
+    // Single-runway airports broadcast their real designator for both
+    // departures and arrivals; strips without a runway keep ALL RUNWAYS.
+    const runways = ap.runway > 0 ? runwayInUse(ap.runway, wx.windDir) : "ALL RUNWAYS";
 
     await supabaseAdmin.from("atis").update({ active: false }).eq("airport_icao", ap.icao).eq("active", true);
 
