@@ -1,0 +1,2 @@
+ALTER TABLE public.airports ADD COLUMN IF NOT EXISTS runways text;
+COMMENT ON COLUMN public.airports.runways IS 'Optional comma-separated runway strips, e.g. "07L/25R, 07C/25C, 07R/25L". When set, ATIS generation picks the direction into the wind and announces all parallel designators instead of deriving one from the runway heading.';

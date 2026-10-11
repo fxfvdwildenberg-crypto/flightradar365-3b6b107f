@@ -112,6 +112,7 @@ export type Database = {
           major: boolean
           name: string
           runway: number
+          runways: string | null
           updated_at: string
           x: number
           y: number
@@ -127,6 +128,7 @@ export type Database = {
           major?: boolean
           name: string
           runway?: number
+          runways?: string | null
           updated_at?: string
           x: number
           y: number
@@ -142,6 +144,7 @@ export type Database = {
           major?: boolean
           name?: string
           runway?: number
+          runways?: string | null
           updated_at?: string
           x?: number
           y?: number
