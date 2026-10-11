@@ -16,6 +16,8 @@ export type AirportRow = {
   x: number;
   y: number;
   runway: number;
+  /** Optional strip list, e.g. "07L/25R, 07C/25C, 07R/25L" — drives ATIS. */
+  runways?: string | null;
   elevation: number;
   major: boolean;
   info: string | null;
