@@ -4,14 +4,35 @@ import { createFileRoute } from "@tanstack/react-router";
  * Automatic ATIS generator.
  *
  * Every airport that has not had a new ATIS filed in the past 6 hours gets one
- * generated from its current weather. Automatic broadcasts always read
- * "ALL RUNWAYS" for both departures and arrivals. Runs on a schedule (hourly).
+ * generated from its current weather. Single-runway airports get their actual
+ * runway designator (same runway for departures and arrivals, picked into the
+ * wind); airports without a runway strip keep "ALL RUNWAYS". Runs hourly.
  *
  * Call with `apikey: <publishable key>` or `Authorization: Bearer <PUSH_CRON_SECRET>`.
  */
 
 const SIX_HOURS = 6 * 60 * 60 * 1000;
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+/** "08" style designator for a runway heading in degrees. */
+function designator(heading: number): string {
+  const d = (((Math.round(heading / 10) * 10) % 360) + 360) % 360;
+  return String(d === 0 ? 36 : d / 10).padStart(2, "0");
+}
+
+/** Smallest angle between two headings. */
+function headingDiff(a: number, b: number): number {
+  return Math.abs((((a - b) % 360) + 540) % 360 - 180);
+}
+
+/**
+ * Runway in use for a single-runway airport: the strip direction closest to
+ * the wind, so departures and arrivals use the same runway into the wind.
+ */
+function runwayInUse(heading: number, windDir: number): string {
+  const opposite = (heading + 180) % 360;
+  return designator(headingDiff(heading, windDir) <= headingDiff(opposite, windDir) ? heading : opposite);
+}
 
 export const Route = createFileRoute("/api/public/atis/auto")({
   server: {
