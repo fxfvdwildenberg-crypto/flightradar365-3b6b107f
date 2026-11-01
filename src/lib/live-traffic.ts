@@ -21,6 +21,8 @@ type Traffic = {
   yNm: number | null;
   referenceAirport: string | null;
   fixAgeSec: number | null;
+  distanceNm: number | null;
+  bearingDeg: number | null;
 };
 
 type Affine = [number, number, number, number, number, number];
@@ -54,7 +56,7 @@ export function fitAffine(pairs: { u: number; v: number; x: number; y: number }[
   const X = solve(rx);
   const Y = solve(ry);
   if (!X || !Y) return null;
-  return [X[0], X[1], X[2], Y[0], Y[1], Y[2]];
+  return [X[0]!, X[1]!, X[2]!, Y[0]!, Y[1]!, Y[2]!];
 }
 
 function nearestAirport(x: number, y: number): Airport | undefined {
@@ -99,13 +101,21 @@ export function useLiveTraffic(airportsVersion: number): LiveFlight[] {
   const t = fitAffine(pairs);
   if (!t) return [];
 
+  const scale = Math.sqrt(Math.abs(t[0] * t[4] - t[1] * t[3]));
   const now = new Date().toISOString();
   return traffic.aircraft
     .filter((a) => a.xNm !== null && a.yNm !== null)
     .map((a) => {
-      const x = t[0] * a.xNm! + t[1] * a.yNm! + t[2];
-      const y = t[3] * a.xNm! + t[4] * a.yNm! + t[5];
-      const ref = (a.referenceAirport && airportByIcao(a.referenceAirport)) || nearestAirport(x, y)!;
+      let x = t[0] * a.xNm! + t[1] * a.yNm! + t[2];
+      let y = t[3] * a.xNm! + t[4] * a.yNm! + t[5];
+      // Our map isn't drawn to scale, so anchor on the reference airport when we know it.
+      const anchor = a.referenceAirport ? airportByIcao(a.referenceAirport) : undefined;
+      if (anchor && a.distanceNm != null && a.bearingDeg != null) {
+        const r = (a.bearingDeg * Math.PI) / 180;
+        x = anchor.x + a.distanceNm * scale * Math.sin(r);
+        y = anchor.y - a.distanceNm * scale * Math.cos(r);
+      }
+      const ref = anchor || nearestAirport(x, y)!;
       const plan: FlightPlan = {
         id: `live-${a.callsign}`,
         user_id: "",
