@@ -38,6 +38,7 @@ import { usePersistentSet, usePersistentState } from "@/lib/persist";
 import { expiresLabel, useTfrs, type Pt } from "@/lib/tfr";
 import { useFavorites, useFlightViewCounts, useRecordView } from "@/lib/favorites";
 import { useInstallPrompt } from "@/lib/pwa";
+import { useLiveTraffic } from "@/lib/live-traffic";
 import { requestPinPermission, useFlightPinNotification, usePinnedFlightId } from "@/lib/pin";
 import {
   pushSupported,
@@ -177,12 +178,15 @@ function RadarPage() {
   const { data: tfrs = [] } = useTfrs();
   const selectedTfr = tfrs.find((t) => t.id === selectedTfrId) ?? null;
 
+  const liveTraffic = useLiveTraffic(airportsVersion);
   const flights: LiveFlight[] = useMemo(() => {
-    const all = plans
+    const liveCalls = new Set(liveTraffic.map((f) => f.plan.callsign.toUpperCase()));
+    const simulated = plans
       .map((p) => computeFlight(p, clock, tfrs))
       .filter((f): f is LiveFlight => !!f)
       .filter((f) => isVisibleOnRadar(f, clock))
-      .filter((f) => !hiddenCats.has(categoryFor(f.plan.aircraft)));
+      .filter((f) => !liveCalls.has(f.plan.callsign.toUpperCase()));
+    const all = [...simulated, ...liveTraffic].filter((f) => !hiddenCats.has(categoryFor(f.plan.aircraft)));
     if (!focus) return all;
     const codes = new Set(airportsOfIsland(focus).map((a) => a.icao));
     // Keep flights that touch this island, or are currently over it.
@@ -194,7 +198,7 @@ function RadarPage() {
         (isl ? Math.hypot(f.x - isl.x, f.y - isl.y) < isl.radius * 3 : false),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plans, clock, focus, tfrs, airportsVersion, Array.from(hiddenCats).sort().join(",")]);
+  }, [plans, clock, focus, tfrs, airportsVersion, liveTraffic, Array.from(hiddenCats).sort().join(",")]);
 
 
   // Airspace warnings for the signed-in pilot's own flights: one toast per
