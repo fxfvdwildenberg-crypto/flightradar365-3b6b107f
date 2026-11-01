@@ -30,26 +30,28 @@ type Affine = [number, number, number, number, number, number];
 /** Least-squares fit of x' = a·x + b·y + c, y' = d·x + e·y + f. */
 export function fitAffine(pairs: { u: number; v: number; x: number; y: number }[]): Affine | null {
   if (pairs.length < 3) return null;
-  const s = new Array(9).fill(0);
+  const s: number[] = new Array(9).fill(0);
   const rx = [0, 0, 0];
   const ry = [0, 0, 0];
   for (const p of pairs) {
     const r = [p.u, p.v, 1];
     for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) s[i * 3 + j] += r[i] * r[j];
-      rx[i] += r[i] * p.x;
-      ry[i] += r[i] * p.y;
+      for (let j = 0; j < 3; j++) s[i * 3 + j]! += r[i]! * r[j]!;
+      rx[i]! += r[i]! * p.x;
+      ry[i]! += r[i]! * p.y;
     }
   }
   const solve = (b: number[]) => {
     const m = s.map((v) => v);
-    const det = (q: number[]) =>
-      q[0] * (q[4] * q[8] - q[5] * q[7]) - q[1] * (q[3] * q[8] - q[5] * q[6]) + q[2] * (q[3] * q[7] - q[4] * q[6]);
+    const det = (z: number[]) => {
+      const q = (i: number) => z[i]!;
+      return q(0) * (q(4) * q(8) - q(5) * q(7)) - q(1) * (q(3) * q(8) - q(5) * q(6)) + q(2) * (q(3) * q(7) - q(4) * q(6));
+    };
     const D = det(m);
     if (Math.abs(D) < 1e-9) return null;
     return [0, 1, 2].map((c) => {
       const q = m.slice();
-      for (let r = 0; r < 3; r++) q[r * 3 + c] = b[r];
+      for (let r = 0; r < 3; r++) q[r * 3 + c] = b[r]!;
       return det(q) / D;
     });
   };
