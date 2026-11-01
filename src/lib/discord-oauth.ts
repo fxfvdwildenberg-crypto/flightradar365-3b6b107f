@@ -1,8 +1,9 @@
 /** Shared helpers for the Discord sign-in flow (server side only). */
 
 /** The single origin registered as the Discord OAuth2 redirect URI. */
-export const CANONICAL_ORIGIN =
-  process.env["PUBLIC_SITE_ORIGIN"] || "https://flightradar365.lovable.app";
+export const CANONICAL_ORIGIN = (
+  process.env["PUBLIC_SITE_ORIGIN"] || "https://flightradar365.lovable.app"
+).replace(/\/+$/, "");
 
 /** Origins we are willing to hand a finished session back to. */
 export function isAllowedOrigin(origin: string): boolean {
@@ -10,7 +11,11 @@ export function isAllowedOrigin(origin: string): boolean {
     const { protocol, hostname } = new URL(origin);
     if (hostname === "localhost" || hostname === "127.0.0.1") return true;
     if (protocol !== "https:") return false;
-    return hostname.endsWith(".lovable.app") || hostname === "flightradar365.lovable.app";
+    return (
+      hostname === "flightradar365.lovable.app" ||
+      hostname.endsWith(".lovable.app") ||
+      hostname.endsWith(".vercel.app")
+    );
   } catch {
     return false;
   }
