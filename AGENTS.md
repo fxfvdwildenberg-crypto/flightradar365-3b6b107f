@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep the radar traffic sidebar presentational and pass the radar's existing flight/airport selection state into it, so list and map stay synchronized without separate data fetching.
