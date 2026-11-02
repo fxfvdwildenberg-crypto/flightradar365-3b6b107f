@@ -46,7 +46,10 @@ function AuthPage() {
     setBusy(true);
     try {
       const { ok } = await checkGuestCode({ data: { code } });
-      if (!ok) return toast.error("Wrong access code");
+      if (!ok) {
+        toast.error("Wrong access code");
+        return;
+      }
       localStorage.setItem("atc365-guest", "1");
       navigate({ to: "/" });
     } finally {
