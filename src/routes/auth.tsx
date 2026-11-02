@@ -1,5 +1,7 @@
-import { useEffect } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { checkGuestCode } from "@/lib/guest.functions";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 
@@ -35,6 +37,22 @@ function AuthPage() {
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
+
+  const navigate = useNavigate();
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const enterWithCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const { ok } = await checkGuestCode({ data: { code } });
+      if (!ok) return toast.error("Wrong access code");
+      localStorage.setItem("atc365-guest", "1");
+      navigate({ to: "/" });
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const discord = () => {
     window.location.href = "/api/public/auth/discord/start";
@@ -82,6 +100,19 @@ function AuthPage() {
           >
             Continue with Discord
           </Button>
+          <form onSubmit={enterWithCode} className="mt-4 space-y-2 border-t pt-4">
+            <p className="text-xs text-muted-foreground">Or enter with an access code</p>
+            <Input
+              type="password"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="Access code"
+              aria-label="Access code"
+            />
+            <Button type="submit" variant="secondary" className="w-full" disabled={busy || !code}>
+              Enter
+            </Button>
+          </form>
         </div>
       </div>
     </main>
