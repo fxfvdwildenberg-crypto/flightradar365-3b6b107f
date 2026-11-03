@@ -376,7 +376,7 @@ function RadarPage() {
               <Menu className="size-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[86vw] max-w-sm border-border bg-card p-0">
+          <SheetContent side="left" className="radar-workspace w-[86vw] max-w-sm border-border bg-card p-0">
             <SheetHeader className="border-b border-border px-4 py-4">
               <SheetTitle className="flex items-center gap-2 font-display text-xl text-primary">
                 <Logo className="h-7" /> Menu
@@ -580,7 +580,7 @@ function RadarPage() {
           <RadarTrafficSidebar flights={flights} selectedFlightId={selectedFlightId} selectedAirport={selectedAirport} focus={focus} onSelectFlight={id => { setSelectedAirport(null); setSelectedFlightId(id); }} onSelectAirport={openAirport} onFocus={slug => { setFocus(slug); setSelectedAirport(null); setSelectedFlightId(null); }} />
         </aside>
         <Sheet open={trafficOpen} onOpenChange={setTrafficOpen}>
-          <SheetContent side="left" className="w-[88vw] max-w-sm gap-0 border-border bg-card p-0">
+          <SheetContent side="left" className="radar-workspace w-[88vw] max-w-sm gap-0 border-border bg-card p-0">
             <SheetHeader className="shrink-0 border-b border-border p-4"><SheetTitle className="font-display text-xl">Radar traffic</SheetTitle></SheetHeader>
             <div className="min-h-0 flex-1"><RadarTrafficSidebar flights={flights} selectedFlightId={selectedFlightId} selectedAirport={selectedAirport} focus={focus} onSelectFlight={id => { setSelectedAirport(null); setSelectedFlightId(id); setTrafficOpen(false); }} onSelectAirport={icao => { openAirport(icao); setTrafficOpen(false); }} onFocus={slug => { setFocus(slug); setSelectedAirport(null); setSelectedFlightId(null); }} /></div>
           </SheetContent>

@@ -329,6 +329,14 @@
   letter-spacing: 0;
 }
 .radar-workspace .font-display { letter-spacing: 0; }
+.radar-detail .deck-card {
+  background-image: none;
+  background-color: var(--secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: none;
+}
+.radar-detail .deck-surface { border-radius: 8px; }
 .radar-module-heading {
   font-family: var(--font-sans);
   font-size: 11px;
