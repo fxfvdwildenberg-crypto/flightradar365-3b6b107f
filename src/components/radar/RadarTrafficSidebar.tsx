@@ -8,7 +8,8 @@ import type { LiveFlight } from "@/lib/flights";
 import { AIRPORTS, ISLANDS } from "@/lib/world";
 import { cn } from "@/lib/utils";
 
-export function RadarTrafficSidebar({ flights, selectedFlightId, selectedAirport, focus, onSelectFlight, onSelectAirport, onFocus }: {
+export function RadarTrafficSidebar({ flights, selectedFlightId, selectedAirport, focus, onSelectFlight, onSelectAirport, onFocus, mode }: {
+  mode?: "traffic" | "airports";
   flights: LiveFlight[];
   selectedFlightId: string | null;
   selectedAirport: string | null;
@@ -25,7 +26,7 @@ export function RadarTrafficSidebar({ flights, selectedFlightId, selectedAirport
     <div className="flex h-full min-h-0 flex-col bg-card">
       <div className="border-b border-border p-4">
         <div className="mb-5 flex items-center justify-between">
-          <div><p className="radar-module-heading mb-1">Airspace overview</p><h2 className="font-display text-2xl font-semibold">Traffic monitor</h2></div>
+          <div><p className="radar-module-heading mb-1">Airspace overview</p><h2 className="font-display text-2xl font-semibold">{mode === "traffic" ? "Active flights" : mode === "airports" ? "Airports" : "Traffic monitor"}</h2></div>
           <Navigation className="size-5 text-primary" />
         </div>
         <div className="relative">
@@ -33,8 +34,8 @@ export function RadarTrafficSidebar({ flights, selectedFlightId, selectedAirport
           <Input aria-label="Filter radar traffic" value={filter} onChange={e => setFilter(e.target.value)} placeholder="Filter traffic…" className="h-10 rounded-md bg-background pl-9" />
         </div>
       </div>
-      <Tabs defaultValue="traffic" className="flex min-h-0 flex-1 flex-col gap-0">
-        <TabsList className="mx-4 mt-4 grid h-10 shrink-0 grid-cols-2 rounded-md bg-background p-1">
+      <Tabs value={mode} defaultValue="traffic" className="flex min-h-0 flex-1 flex-col gap-0">
+        <TabsList className={cn("mx-4 mt-4 grid h-10 shrink-0 grid-cols-2 rounded-md bg-background p-1", mode && "hidden")}>
           <TabsTrigger value="traffic" className="rounded-sm gap-2 data-[state=active]:bg-secondary data-[state=active]:text-primary">Aircraft <span className="font-mono text-xs">{flights.length}</span></TabsTrigger>
           <TabsTrigger value="airports" className="rounded-sm gap-2 data-[state=active]:bg-secondary data-[state=active]:text-primary">Airports <span className="font-mono text-xs">{airports.length}</span></TabsTrigger>
         </TabsList>
