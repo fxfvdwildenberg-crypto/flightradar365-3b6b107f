@@ -4,6 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   ChevronLeft,
+  Radar,
+  Plus,
+  Activity,
   PanelLeft,
   Layers,
   Tag,
@@ -122,6 +125,7 @@ function RadarPage() {
 
   const [regionsOpen, setRegionsOpen] = useState(false);
   const [trafficOpen, setTrafficOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
   const [showClouds, setShowClouds] = usePersistentState("clouds", false);
@@ -316,12 +320,12 @@ function RadarPage() {
   return (
     <div className="radar-workspace relative flex h-dvh w-full flex-col overflow-hidden bg-background">
       {/* Workspace header */}
-      <header className="z-40 flex h-16 shrink-0 items-center gap-3 border-b border-border bg-card px-3 lg:gap-6 lg:px-5">
+      <header className="z-40 flex h-16 shrink-0 items-center gap-3 border-b border-border bg-background px-3 lg:gap-6 lg:px-5">
         <div className="flex shrink-0 items-center gap-3">
           <Logo className="h-8 w-auto" />
           <div className="hidden border-l border-border pl-3 sm:block">
-            <h1 className="font-display text-xl font-semibold leading-none">Live radar</h1>
-            <p className="mt-1 text-[10px] text-muted-foreground">ATC365 / Operations</p>
+            <h1 className="font-display text-xl font-semibold leading-none">ATC365</h1>
+            <p className="mt-1 text-[10px] text-muted-foreground">Radar workspace</p>
           </div>
         </div>
 
@@ -331,7 +335,8 @@ function RadarPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search callsign or airport"
-            className="h-9 rounded-md border-border bg-background pl-9 text-sm placeholder:text-muted-foreground"
+            aria-label="Search callsign or airport"
+            className="h-10 rounded-md border-border bg-card pl-9 text-sm placeholder:text-muted-foreground"
           />
 
           {searchResults.length > 0 && (
@@ -371,7 +376,7 @@ function RadarPage() {
               <Menu className="size-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[86vw] max-w-sm border-border bg-card p-0">
+          <SheetContent side="left" className="radar-workspace w-[86vw] max-w-sm border-border bg-card p-0">
             <SheetHeader className="border-b border-border px-4 py-4">
               <SheetTitle className="flex items-center gap-2 font-display text-xl text-primary">
                 <Logo className="h-7" /> Menu
@@ -562,17 +567,31 @@ function RadarPage() {
       </header>
 
       <div className="flex min-h-0 flex-1">
-        <aside className="hidden w-80 shrink-0 border-r border-border lg:block" aria-label="Traffic monitor">
-          <RadarTrafficSidebar flights={flights} selectedFlightId={selectedFlightId} focus={focus} onSelectFlight={id => { setSelectedAirport(null); setSelectedFlightId(id); }} onSelectAirport={openAirport} onFocus={slug => { setFocus(slug); setSelectedAirport(null); setSelectedFlightId(null); }} />
+        <nav aria-label="Workspace navigation" className="hidden w-16 shrink-0 flex-col items-center gap-3 border-r border-border bg-background py-4 lg:flex">
+          <Button variant="ghost" size="icon" aria-label="Radar workspace" title="Radar workspace" className="size-10 bg-primary/15 text-primary"><Radar /></Button>
+          <Button variant="ghost" size="icon" aria-label="Toggle traffic monitor" aria-pressed={sidebarOpen} title="Traffic monitor" onClick={() => setSidebarOpen(!sidebarOpen)} className={cn("size-10", sidebarOpen ? "text-primary" : "text-muted-foreground")}><PanelLeft /></Button>
+          <Button asChild variant="ghost" size="icon" className="size-10 text-muted-foreground" title="My flights"><Link to="/my-flights" aria-label="My flights"><PlaneTakeoff /></Link></Button>
+          <Button asChild variant="ghost" size="icon" className="size-10 text-muted-foreground" title="Flight plan control"><Link to="/atc" aria-label="Flight plan control"><ListChecks /></Link></Button>
+          <div className="my-1 h-px w-7 bg-border" />
+          <Button variant="ghost" size="icon" className="size-10 text-muted-foreground" aria-label="Regions and settings" title="Regions and settings" onClick={() => setRegionsOpen(true)}><Globe2 /></Button>
+          {isAdmin && <Button variant="ghost" size="icon" className="mt-auto size-10 text-muted-foreground" aria-label="Admin panel" title="Admin panel" onClick={() => setAdminOpen(true)}><Shield /></Button>}
+        </nav>
+        <aside className={cn("hidden w-[304px] shrink-0 border-r border-border", sidebarOpen && "lg:block")} aria-label="Traffic monitor">
+          <RadarTrafficSidebar flights={flights} selectedFlightId={selectedFlightId} selectedAirport={selectedAirport} focus={focus} onSelectFlight={id => { setSelectedAirport(null); setSelectedFlightId(id); }} onSelectAirport={openAirport} onFocus={slug => { setFocus(slug); setSelectedAirport(null); setSelectedFlightId(null); }} />
         </aside>
         <Sheet open={trafficOpen} onOpenChange={setTrafficOpen}>
-          <SheetContent side="left" className="w-[88vw] max-w-sm gap-0 border-border bg-card p-0">
+          <SheetContent side="left" className="radar-workspace w-[88vw] max-w-sm gap-0 border-border bg-card p-0">
             <SheetHeader className="shrink-0 border-b border-border p-4"><SheetTitle className="font-display text-xl">Radar traffic</SheetTitle></SheetHeader>
-            <div className="min-h-0 flex-1"><RadarTrafficSidebar flights={flights} selectedFlightId={selectedFlightId} focus={focus} onSelectFlight={id => { setSelectedAirport(null); setSelectedFlightId(id); setTrafficOpen(false); }} onSelectAirport={icao => { openAirport(icao); setTrafficOpen(false); }} onFocus={slug => { setFocus(slug); setSelectedAirport(null); setSelectedFlightId(null); }} /></div>
+            <div className="min-h-0 flex-1"><RadarTrafficSidebar flights={flights} selectedFlightId={selectedFlightId} selectedAirport={selectedAirport} focus={focus} onSelectFlight={id => { setSelectedAirport(null); setSelectedFlightId(id); setTrafficOpen(false); }} onSelectAirport={icao => { openAirport(icao); setTrafficOpen(false); }} onFocus={slug => { setFocus(slug); setSelectedAirport(null); setSelectedFlightId(null); }} /></div>
           </SheetContent>
         </Sheet>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-border bg-background px-3 lg:px-5">
+        <div className="flex min-w-0 flex-1 flex-col gap-2 bg-background p-2 lg:gap-3 lg:p-4">
+          <section aria-label="Airspace status" className="grid shrink-0 grid-cols-3 divide-x divide-border border-b border-border pb-3 lg:pb-4">
+            <div className="min-w-0 px-2 lg:px-4"><p className="radar-module-heading flex items-center gap-2"><PlaneTakeoff className="hidden size-3.5 sm:block" />Airborne</p><p className="mt-1 font-mono text-xl font-medium lg:text-2xl">{airborne}<span className="ml-2 hidden font-sans text-xs font-normal text-muted-foreground xl:inline">aircraft</span></p></div>
+            <div className="min-w-0 px-3 lg:px-5"><p className="radar-module-heading flex items-center gap-2"><Radio className="hidden size-3.5 sm:block" />ATC online</p><p className="mt-1 font-mono text-xl font-medium text-ground lg:text-2xl">{Array.from(atcByAirport?.values() ?? []).reduce((sum, sessions) => sum + sessions.length, 0)}</p></div>
+            <div className="min-w-0 px-3 lg:px-5"><p className="radar-module-heading flex items-center gap-2"><Activity className="hidden size-3.5 sm:block" />Restrictions</p><p className={cn("mt-1 font-mono text-xl font-medium lg:text-2xl", tfrs.length ? "text-destructive" : "text-muted-foreground")}>{tfrs.length}<span className="ml-2 hidden font-sans text-xs font-normal text-muted-foreground xl:inline">active TFRs</span></p></div>
+          </section>
+          <div className="flex h-12 shrink-0 items-center justify-between gap-2 px-1 lg:px-1">
             <div className="flex min-w-0 items-center gap-2">
               <Button variant="ghost" size="icon" className="shrink-0 lg:hidden" aria-label="Open traffic monitor" onClick={() => setTrafficOpen(true)}><PanelLeft /></Button>
               {focusedIsland && <Button variant="ghost" size="icon" aria-label="Show whole world" title="Whole world" onClick={() => { setFocus(null); setSelectedAirport(null); }}><ChevronLeft /></Button>}
@@ -580,14 +599,14 @@ function RadarPage() {
               <span className="truncate font-display text-sm font-semibold">{focusedIsland ? focusedIsland.name : "All regions"}</span>
               <span className="hidden text-xs text-muted-foreground sm:inline">/ {AIRPORTS.filter(a => !focus || a.island === focus).length} airports</span>
             </div>
-            <div className="flex shrink-0 items-center gap-1" aria-label="Map layers">
+            <div className="flex shrink-0 items-center gap-1 rounded-md border border-border bg-card p-1" aria-label="Map layers">
               <MapLayerButton icon={<RouteIcon />} label="Route lines" active={showRoutes} onClick={() => setShowRoutes(!showRoutes)} />
               <MapLayerButton icon={<Layers />} label="Waypoints" active={showWaypoints} onClick={() => setShowWaypoints(!showWaypoints)} />
               <MapLayerButton icon={<Cloud />} label="Clouds" active={showClouds} onClick={() => setShowClouds(!showClouds)} />
               <MapLayerButton icon={<Tag />} label="Callsign labels" active={showLabels} onClick={() => setShowLabels(!showLabels)} />
             </div>
           </div>
-      <main className="relative min-h-0 flex-1 overflow-hidden" aria-label="Island radar map">
+      <main className="relative min-h-0 flex-1 overflow-hidden rounded-lg" aria-label="Island radar map">
         <RadarMap
           focus={focus}
           flights={flights}
@@ -774,12 +793,12 @@ function RadarPage() {
         )}
       </main>
 
-      <nav className="z-30 shrink-0 border-t border-border bg-card px-1 py-1.5 sm:px-3" aria-label="Radar actions">
-          <div className="grid grid-cols-5 gap-1 lg:flex lg:justify-center lg:gap-5">
+      <nav className="z-30 shrink-0 border-t border-border pt-2 lg:pt-3" aria-label="Radar actions">
+          <div className="grid grid-cols-5 gap-1 lg:flex lg:justify-end lg:gap-2">
             <DockButton icon={<Globe2 className="size-5" />} label="Regions" onClick={() => setRegionsOpen(true)} />
 
           <DockButton
-            icon={<RouteIcon className="size-5" />}
+            icon={<Plus className="size-5" />}
             label="Flight plan"
             highlight
             onClick={() => {
@@ -960,8 +979,8 @@ function DockButton({
       disabled={disabled}
       className={cn(
         "h-12 min-w-0 flex-col gap-1 rounded-md px-1 py-1.5 lg:h-10 lg:flex-row lg:gap-2 lg:px-4",
-        highlight ? "text-primary" : "text-foreground",
-        disabled ? "opacity-35" : "hover:bg-accent",
+        highlight ? "bg-primary text-primary-foreground hover:bg-primary/90" : "text-muted-foreground",
+        disabled ? "opacity-35" : !highlight && "hover:bg-accent",
       )}
     >
       {icon}
